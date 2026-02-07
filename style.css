@@ -10,15 +10,30 @@ body {
     margin: 0; /* Убираем лишние отступы по краям */
 }
 
-h1, h2, h3 {
-    font-family: "Playfair Display", serif;
-    font-optical-sizing: auto;
-    font-weight: 700; 
-    font-style: normal;
+
+h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;          /* Увеличиваем размер (было примерно 2rem) */
+    font-weight: 700;
     color: #1a1a1a;
-    margin-top: 1.5em;
+    text-align: center;       /* Центрируем */
+    margin: 60px 0 40px;      /* Отступы: 60px сверху, 40px снизу */
+    position: relative;       /* Нужно для позиционирования линии */
+    padding-bottom: 15px;     /* Место для линии под текстом */
 }
 
+/* Создаем элегантную линию под заголовком */
+h1::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%); /* Точно по центру */
+    width: 60px;                 /* Длина линии */
+    height: 3px;                 /* Толщина линии */
+    background-color: #e74c3c;   /* Цвет (под цвет акцента в иконках) */
+    border-radius: 2px;
+}
 
 footer {
     margin-top: 50px; /* Отступ от контента */
