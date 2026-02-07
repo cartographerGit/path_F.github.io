@@ -271,7 +271,7 @@ footer {
     .icon-wrapper {
         flex: 0 0 auto !important;
         width: 100%;
-        height: 7rem; /* Фиксированная высота для иконки */
+        height: 9rem; /* Фиксированная высота для иконки */
         margin-bottom: 1rem;
     }
 
