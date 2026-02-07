@@ -123,10 +123,24 @@ h1::after {
   text-align: left;
 }
 
-/* Эффект зума для крупной иконки */
-.nav-item:hover .nav-icon {
-  transform: scale(1.1);
+
+
+
+.nav-item {
+    text-decoration: none; 
+    color: inherit;       
+    cursor: pointer;      
+    transition: 0.3s; /* Чтобы изменения происходили плавно */
 }
+
+/* Эффект при наведении мышки */
+.nav-item:hover {
+    transform: scale(1.1);
+    color: #e74c3c; /* Текст станет красным (как линия под заголовком) */
+    border-color: #1a1a1a; /* Рамка станет темнее */
+    background-color: #fcfcfc; /* Фон чуть-чуть изменится */
+}
+
 
 /* 5. Футер */
 footer {
