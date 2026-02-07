@@ -150,7 +150,7 @@ footer {
     }
 
     .nav-item {
-        flex-direction: column; /* Возвращаем иконку НАД текстом */
+        flex-direction: row; /* Возвращаем иконку НАД текстом */
         text-align: center;
         padding: 1.5rem 1rem;
         min-height: auto;
@@ -175,7 +175,7 @@ footer {
         height: 6.5rem;
     }
 } 
-*/
+
 
 footer a {
     color: inherit;
