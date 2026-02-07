@@ -28,7 +28,7 @@ h1 {
     font-size: 3rem;     /* 48px */
     font-weight: 700;
     color: #1a1a1a;
-    text-align: left;
+    text-align: center;
     margin: 3.75rem 0 2.5rem; /* 60px сверху, 40px снизу */
     position: relative;
     padding-bottom: 0.93rem;  /* ~15px */
@@ -60,7 +60,7 @@ h1::after {
     display: flex;
     flex-direction: column;
     align-items: flex-start; /* Все влево */
-    text-align: left;
+    text-align: center;
     cursor: pointer;
 }
 
@@ -74,7 +74,7 @@ h1::after {
 /* 5. Футер */
 footer {
     flex-shrink: 0;
-    padding: 1.25rem;
+    padding: 2rem;
     text-align: left; 
     border-top: 1px solid #eee;
     font-size: 0.875rem; /* 14px */
