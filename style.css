@@ -41,7 +41,7 @@ h1 {
     font-size: 3rem;     /* 48px */
     font-weight: 200;
     color: #1a1a1a;
-    text-align: center;
+    text-align: left;
     margin: 3.75rem 0 2.5rem; /* 60px сверху, 40px снизу */
     position: relative;
     padding-bottom: 0.93rem;  /* ~15px */
@@ -50,11 +50,10 @@ h1 {
 /* 3. линия послк заголовка */
 h1::after {
     content: "";
-    position: relative;
-    bottom: 0;
-    left: 0;
-    width: 5rem;     /* 60px */
-    height: 0.18rem;    /* ~3px */
+    display: block;
+    margin-top: 1rem; /* Отступ от текста до линии */
+    width: 5rem;
+    height: 0.18rem;
     background-color: #e74c3c;
     border-radius: 0.12rem;
 }
