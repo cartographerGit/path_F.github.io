@@ -76,7 +76,7 @@ h1::after {
   align-items: center; /* Центрирование по вертикали */
   justify-content: space-between; /* Располагаем элементы по краям */
   
-  padding: 1.5rem 1rem; 
+  padding: 0.5rem 0.5rem; 
   text-decoration: none;
   background-color: #ffffff;
   border: 1px solid #e0e0e0; 
@@ -104,7 +104,7 @@ h1::after {
 
 /* Левая часть: 30% под иконку */
 .icon-wrapper {
-  flex: 0 0 30%; /* Занимает ровно 30% ширины, не сжимается */
+  flex: 0 0 35%; /* Занимает ровно 30% ширины, не сжимается */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -120,8 +120,8 @@ h1::after {
 
 /* Правая часть: 60% под текст */
 .nav-text {
-  flex: 0 0 60%; /* Занимает ровно 60% ширины */
-  font-size: 2rem; 
+  flex: 0 0 65%; /* Занимает ровно 60% ширины */
+  font-size: 3rem; 
   text-align: left; /* Текст теперь лучше прижать к левому краю своей зоны */
   line-height: 1.3;
   padding-right: 0.5rem;
