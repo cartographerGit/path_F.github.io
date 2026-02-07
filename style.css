@@ -47,32 +47,67 @@ h1::after {
 }
 
 /* 4. Навигация (Сетка) */
-.main-navigation {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.25rem;       /* 20px */
-    margin-top: 2rem;
-}
-
 .nav-menu {
   display: grid;
-  /* Создаем ровно две колонки одинаковой ширины */
+  /* Всегда 2 колонки */
   grid-template-columns: 1fr 1fr; 
-  gap: 10px; /* Отступ между кнопками */
+  /* Отступ между карточками 16px */
+  gap: 1rem; 
   width: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .nav-item {
-  font-family: "Unbounded", sans-serif;
-  font-weight: 200; /* Тот самый Extra Light */
-  text-align: center;
-  padding: 20px;
-  border: 1px solid #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+  /* Внутренние отступы: сверху/снизу 32px, по бокам 16px */
+  padding: 2rem 1rem; 
   text-decoration: none;
-  color: #000;
+  background-color: #ffffff;
+  /* Тонкая рамка в px для четкости */
+  border: 1px solid #e0e0e0; 
+  /* Закругление углов 16px под стиль шрифта */
+  border-radius: 1rem; 
+  
+  /* Настройки Unbounded */
+  font-family: "Unbounded", sans-serif;
+  font-weight: 200;
+  color: #1a1a1a;
+  
+  /* Плавная реакция на наведение */
+  transition: 0.3s ease;
+}
+
+.nav-item:hover {
+  border-color: #000;
+  background-color: #f9f9f9;
+  transform: translateY(-3px);
+}
+
+.icon-wrapper {
+  /* Отступ между иконкой и текстом 16px */
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.nav-icon {
+  /* Размер иконки 48px */
+  width: 3rem;  
+  height: 3rem;
+  object-fit: contain;
+}
+
+.nav-text {
+  /* Размер текста 14px */
+  font-size: 0.875rem; 
+  text-align: center;
+  line-height: 1.4;
 }
 
 /* 5. Футер */
