@@ -38,7 +38,7 @@ main {
 /* 3. Заголовок */
 h1 {
     font-family: "Unbounded", sans-serif;
-    font-size: 3rem;     /* 48px */
+    font-size: 2.2rem;     /* 48px */
     font-weight: 200;
     color: #1a1a1a;
     text-align: left;
@@ -165,13 +165,13 @@ footer {
         flex: 0 0 auto; /* Отменяем 60% ширины */
         width: 100%;
         text-align: center; /* Центрируем текст для красоты */
-        font-size: 0.9rem; /* Чуть уменьшаем шрифт для мобилок */
+        font-size: 2rem; /* Чуть уменьшаем шрифт для мобилок */
         padding-right: 0;
     }
 
     .nav-icon {
-        width: 4.5rem; /* Делаем иконку чуть крупнее в мобильной версии */
-        height: 4.5rem;
+        width: 6.5rem; /* Делаем иконку чуть крупнее в мобильной версии */
+        height: 6.5rem;
     }
 }
 
