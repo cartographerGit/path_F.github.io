@@ -230,7 +230,7 @@ footer {
 
     /* 3. Уменьшаем заголовок (был 5rem, стал 2.5rem), чтобы он не распирал экран */
     h1 {
-        font-size: 2.2rem !important; /* Уменьшаем размер текста */
+        font-size: 2rem !important; /* Уменьшаем размер текста */
         margin: 2rem 1rem 1.5rem !important; /* Меньше отступы */
         text-align: center;
         line-height: 1.2;
@@ -260,7 +260,7 @@ footer {
 
     /* 7. Карточка меню: иконка над текстом */
     .nav-item {
-        flex-direction: column !important;
+        flex-direction: row !important;
         align-items: center;
         text-align: center;
         padding: 2rem 1rem !important;
