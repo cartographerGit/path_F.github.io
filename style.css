@@ -1,98 +1,88 @@
+/* 1. Базовые настройки */
 html {
     height: 100%;
+    font-size: 16px; /* База: 1rem = 16px */
 }
 
 body {
-    /* Ваши старые стили шрифтов */
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-    color: #333;
-    line-height: 1.6;
-    margin: 0;
-
-    /* Новые стили для прижатия футера */
     display: flex;
     flex-direction: column;
-    min-height: 100%; /* Гарантирует высоту во весь экран */
+    min-height: 100%;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;      /* 16px */
+    line-height: 1.6;
+    color: #333;
+    background-color: #fff;
 }
 
-/* 2. Контентная часть (заголовок + иконки) */
+/* 2. Контентная часть */
 main {
-    flex: 1 0 auto; /* Занимает всё свободное место, толкая футер вниз */
+    flex: 1 0 auto;
+    padding: 0 1.25rem;  /* 20px отступы по бокам, чтобы текст не лип к краям */
 }
 
-/* 3. Футер всегда снизу */
-footer {
-    flex-shrink: 0; /* Не дает футеру сжиматься */
-    padding: 20px 0;
-    text-align: left;
-    padding-left: 20px;
-    border-top: 1px solid #eee;
-    color: #888;
-    font-size: 0.85em;
-}
-
+/* 3. Заголовок (Левое выравнивание) */
 h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 3rem;          /* Увеличиваем размер (было примерно 2rem) */
+    font-size: 3rem;     /* 48px */
     font-weight: 700;
     color: #1a1a1a;
-    text-align: center;       /* Центрируем */
-    margin: 60px 0 40px;      /* Отступы: 60px сверху, 40px снизу */
-    position: relative;       /* Нужно для позиционирования линии */
-    padding-bottom: 15px;     /* Место для линии под текстом */
+    text-align: left;
+    margin: 3.75rem 0 2.5rem; /* 60px сверху, 40px снизу */
+    position: relative;
+    padding-bottom: 0.93rem;  /* ~15px */
 }
 
-/* Создаем элегантную линию под заголовком */
 h1::after {
     content: "";
     position: absolute;
     bottom: 0;
-    left: 50%;
-    transform: translateX(-50%); /* Точно по центру */
-    width: 60px;                 /* Длина линии */
-    height: 3px;                 /* Толщина линии */
-    background-color: #e74c3c;   /* Цвет (под цвет акцента в иконках) */
-    border-radius: 2px;
+    left: 0;
+    width: 3.75rem;     /* 60px */
+    height: 0.18rem;    /* ~3px */
+    background-color: #e74c3c;
+    border-radius: 0.12rem;
 }
 
-
-
-
+/* 4. Навигация (Сетка) */
 .main-navigation {
-    display: flex;       /* Включаем гибкую сетку */
-    flex-wrap: wrap;     /* Позволяем перенос на новую строку, если элементов больше 3 */
-    gap: 20px;           /* Расстояние между карточками */
-    padding: 20px;
-    max-width: 1000px;   /* Ограничиваем общую ширину для красоты */
-    margin: 0 auto;      /* Центрируем блок на странице */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;       /* 20px */
+    margin-top: 2rem;
 }
 
 .nav-item {
-    flex: 0 0 calc(33.33% - 20px); /* Строго 3 элемента в ряд с учетом gap */
+    /* На компьютерах 3 в ряд, на планшетах 2, на телефонах 1 */
+    flex: 1 1 calc(33.333% - 1.25rem); 
+    min-width: 15.6rem; /* 250px - чтобы иконки не становились слишком мелкими */
     display: flex;
-    flex-direction: column; /* Иконка сверху, текст снизу */
-    align-items: center;    /* Центрируем содержимое */
-    text-align: center;
+    flex-direction: column;
+    align-items: flex-start; /* Все влево */
+    text-align: left;
     cursor: pointer;
 }
 
 .nav-item img {
-    width: 64px;            /* Размер иконки */
-    height: 64px;
-    margin-bottom: 10px;    /* Отступ до текста */
+    width: 4rem;        /* 64px */
+    height: 4rem;
+    margin-bottom: 0.6rem;
     transition: transform 0.2s ease;
 }
 
-.nav-item span {
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
+/* 5. Футер */
+footer {
+    flex-shrink: 0;
+    padding: 1.25rem;
+    text-align: left; 
+    border-top: 1px solid #eee;
+    font-size: 0.875rem; /* 14px */
+    color: #888;
+    text-align: left;
 }
 
-/* Эффект при наведении */
-.nav-item:hover img {
-    transform: scale(1.1); /* Иконка чуть увеличится */
+footer a {
+    color: inherit;
+    text-decoration: underline;
 }
-
