@@ -1,14 +1,20 @@
 body {
-    /* Чистый и читаемый шрифт для основного текста */
-    font-family: 'Inter', sans-serif;
+    /* Применяем Inter ко всей странице */
+    font-family: "Inter", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400; /* 400 — стандартная толщина для чтения */
+    font-style: normal;
+    
     color: #333;
     line-height: 1.6;
+    margin: 0; /* Убираем лишние отступы по краям */
 }
 
 h1, h2, h3 {
-    /* Элегантный шрифт с засечками для заголовков */
-    font-family: 'Playfair Display', serif;
-    font-weight: 700;
+    font-family: "Playfair Display", serif;
+    font-optical-sizing: auto;
+    font-weight: 700; 
+    font-style: normal;
     color: #1a1a1a;
     margin-top: 1.5em;
 }
