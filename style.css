@@ -204,28 +204,97 @@ footer {
 
 
 
-@media (max-width: 37.5rem) { 
-    .nav-menu {
-        /* Переключаем на 1 колонку */
-        grid-template-columns: 1fr; 
-    }
+@media (max-width: 37.5rem) { /* 600px и меньше */
 
-    .nav-item {
-        /* На телефоне иконка и текст лучше смотрятся друг под другом */
-        flex-direction: row; 
-        text-align: center;
-        padding: 2rem 1rem;
-    }
-
-    .icon-wrapper {
-        flex: 0 0 auto;
+    /* 1. Исправляем тело страницы, чтобы ничего не торчало вбок */
+    html, body {
+        overflow-x: hidden; /* Запрещает горизонтальный скролл */
         width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* 2. Хедер на всю ширину без зазоров */
+    .full-width-header {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        display: block;
+    }
+
+    .banner-image {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    /* 3. Уменьшаем заголовок (был 5rem, стал 2.5rem), чтобы он не распирал экран */
+    h1 {
+        font-size: 2.2rem !important; /* Уменьшаем размер текста */
+        margin: 2rem 1rem 1.5rem !important; /* Меньше отступы */
+        text-align: center;
+        line-height: 1.2;
+        word-wrap: break-word; /* Перенос длинных слов */
+    }
+
+    /* 4. Линия под заголовком (центрируем) */
+    h1::after {
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4rem;
+    }
+
+    /* 5. Контентная область (уменьшаем боковые поля с 3rem до 1rem) */
+    main {
+        padding: 0 1rem !important;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* 6. Сетка меню: переключаем с 2 колонок на 1 */
+    .nav-menu {
+        grid-template-columns: 1fr !important; 
+        gap: 1rem;
+        padding: 0.5rem;
+    }
+
+    /* 7. Карточка меню: иконка над текстом */
+    .nav-item {
+        flex-direction: column !important;
+        align-items: center;
+        text-align: center;
+        padding: 2rem 1rem !important;
+        min-height: auto;
+    }
+
+    /* 8. Иконка и текст на мобильном (отменяем 35%/65%) */
+    .icon-wrapper {
+        flex: 0 0 auto !important;
+        width: 100%;
+        height: 5rem; /* Фиксированная высота для иконки */
         margin-bottom: 1rem;
     }
 
+    .nav-icon {
+        width: 5rem;
+        height: 5rem;
+    }
+
     .nav-text {
-        flex: 0 0 auto;
+        flex: 0 0 auto !important;
         width: 100%;
+        font-size: 1rem;
+        padding: 0;
         text-align: center;
     }
-} 
+
+    /* 9. Футер (в один столбик) */
+    footer {
+        padding: 2rem 1rem !important;
+        text-align: center;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem;
+    }
