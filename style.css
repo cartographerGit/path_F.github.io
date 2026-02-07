@@ -90,7 +90,7 @@ h1::after {
 .icon-wrapper {
   flex: 0 0 35%; 
   /* 1. Задаем жесткий размер области для иконки */
-  height: 8rem;   /* Высота области иконки */
+  height: 10rem;   /* Высота области иконки */
   display: flex;
   align-items: center;
   justify-content: center;
