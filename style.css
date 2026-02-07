@@ -28,7 +28,7 @@ footer {
     flex-shrink: 0; /* Не дает футеру сжиматься */
     padding: 20px 0;
     text-align: left;
-    adding-left: 20px;
+    padding-left: 20px;
     border-top: 1px solid #eee;
     color: #888;
     font-size: 0.85em;
