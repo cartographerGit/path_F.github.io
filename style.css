@@ -41,3 +41,39 @@ footer a:hover {
     border-bottom-color: #1a1a1a;
 }
 
+
+.main-navigation {
+    display: flex;       /* Включаем гибкую сетку */
+    flex-wrap: wrap;     /* Позволяем перенос на новую строку, если элементов больше 3 */
+    gap: 20px;           /* Расстояние между карточками */
+    padding: 20px;
+    max-width: 1000px;   /* Ограничиваем общую ширину для красоты */
+    margin: 0 auto;      /* Центрируем блок на странице */
+}
+
+.nav-item {
+    flex: 0 0 calc(33.33% - 20px); /* Строго 3 элемента в ряд с учетом gap */
+    display: flex;
+    flex-direction: column; /* Иконка сверху, текст снизу */
+    align-items: center;    /* Центрируем содержимое */
+    text-align: center;
+    cursor: pointer;
+}
+
+.nav-item img {
+    width: 64px;            /* Размер иконки */
+    height: 64px;
+    margin-bottom: 10px;    /* Отступ до текста */
+    transition: transform 0.2s ease;
+}
+
+.nav-item span {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+}
+
+/* Эффект при наведении */
+.nav-item:hover img {
+    transform: scale(1.1); /* Иконка чуть увеличится */
+}
+
