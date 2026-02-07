@@ -204,7 +204,7 @@ footer {
 
 
 
-@media (max-width: 37.5rem) { /* 600px и меньше */
+@media (max-width: 64rem) { 
 
     /* 1. Исправляем тело страницы, чтобы ничего не торчало вбок */
     html, body {
