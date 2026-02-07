@@ -113,9 +113,9 @@ h1::after {
 /* Правая часть: 65% под текст */
 .nav-text {
   flex: 0 0 65%;
-  padding-left: 1rem; /* Отступ от иконки */
+  padding-left: 2rem; /* Отступ от иконки */
   
-  font-family: "Unbounded", sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 200;
   font-size: 3rem;
   line-height: 1.3;
