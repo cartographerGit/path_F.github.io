@@ -22,9 +22,9 @@ main {
     padding: 0 1.25rem;  /* 20px отступы по бокам, чтобы текст не лип к краям */
 }
 
-/* 3. Заголовок (Левое выравнивание) */
+/* 3. Заголовок */
 h1 {
-    font-family: 'Playfair Display', serif;
+    font-family: "Unbounded", sans-serif;
     font-size: 3rem;     /* 48px */
     font-weight: 700;
     color: #1a1a1a;
@@ -34,12 +34,13 @@ h1 {
     padding-bottom: 0.93rem;  /* ~15px */
 }
 
+/* 3. линия послк заголовка */
 h1::after {
     content: "";
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 3.75rem;     /* 60px */
+    width: 5rem;     /* 60px */
     height: 0.18rem;    /* ~3px */
     background-color: #e74c3c;
     border-radius: 0.12rem;
