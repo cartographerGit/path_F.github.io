@@ -54,7 +54,7 @@ h1::after {
     margin-top: 1rem; /* Отступ от текста до линии */
     width: 5rem;
     height: 0.18rem;
-    background-color: #e74c3c;
+    background-color: #ff9773ff;
     border-radius: 0.12rem;
 }
 
@@ -77,7 +77,7 @@ h1::after {
   justify-content: space-between;
   
   /* Увеличиваем padding сверху и снизу, чтобы карточка стала выше */
-  padding: 2.5rem 1.5rem; 
+  padding: 2rem 1rem; 
   min-height: 10rem; /* Гарантирует высоту всей карточки */
   
   border: 1px solid #e0e0e0;
@@ -90,7 +90,7 @@ h1::after {
 .icon-wrapper {
   flex: 0 0 35%; 
   /* 1. Задаем жесткий размер области для иконки */
-  height: 6rem;   /* Высота области иконки */
+  height: 8rem;   /* Высота области иконки */
   display: flex;
   align-items: center;
   justify-content: center;
