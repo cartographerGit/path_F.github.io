@@ -271,13 +271,13 @@ footer {
     .icon-wrapper {
         flex: 0 0 auto !important;
         width: 100%;
-        height: 11rem; /* Фиксированная высота для иконки */
+        height: 17rem; /* Фиксированная высота для иконки */
         margin-bottom: 1.5rem;
     }
 
     .nav-icon {
-        width: 11rem;
-        height: 11rem;
+        width: 17rem;
+        height: 17rem;
     }
 
     .nav-text {
