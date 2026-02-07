@@ -1,15 +1,37 @@
-body {
-    /* Применяем Inter ко всей странице */
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400; /* 400 — стандартная толщина для чтения */
-    font-style: normal;
-    
-    color: #333;
-    line-height: 1.6;
-    margin: 0; /* Убираем лишние отступы по краям */
+html {
+    height: 100%;
 }
 
+body {
+    /* Ваши старые стили шрифтов */
+    font-family: "Inter", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    color: #333;
+    line-height: 1.6;
+    margin: 0;
+
+    /* Новые стили для прижатия футера */
+    display: flex;
+    flex-direction: column;
+    min-height: 100%; /* Гарантирует высоту во весь экран */
+}
+
+/* 2. Контентная часть (заголовок + иконки) */
+main {
+    flex: 1 0 auto; /* Занимает всё свободное место, толкая футер вниз */
+}
+
+/* 3. Футер всегда снизу */
+footer {
+    flex-shrink: 0; /* Не дает футеру сжиматься */
+    padding: 20px 0;
+    text-align: center;
+    border-top: 1px solid #eee;
+    color: #888;
+    font-size: 0.85em;
+}
 
 h1 {
     font-family: 'Playfair Display', serif;
@@ -35,26 +57,7 @@ h1::after {
     border-radius: 2px;
 }
 
-footer {
-    margin-top: 50px; /* Отступ от контента */
-    padding: 20px 0;
-    border-top: 1px solid #eee; /* Тонкая разделительная линия */
-    text-align: center;
-    font-size: 0.85em; /* Делаем текст чуть меньше основного */
-    color: #888; /* Приглушенный серый цвет */
-}
 
-footer a {
-    color: #555;
-    text-decoration: none;
-    border-bottom: 1px dashed #ccc; /* Элегантное подчеркивание */
-    transition: all 0.3s ease;
-}
-
-footer a:hover {
-    color: #1a1a1a;
-    border-bottom-color: #1a1a1a;
-}
 
 
 .main-navigation {
