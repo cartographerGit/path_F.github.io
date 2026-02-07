@@ -25,7 +25,7 @@ main {
 /* 3. Заголовок */
 h1 {
     font-family: "Unbounded", sans-serif;
-    font-size: 3rem;     /* 48px */
+    font-size: 5rem;     /* 48px */
     font-weight: 200;
     color: #1a1a1a;
     text-align: center;
