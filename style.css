@@ -26,7 +26,7 @@ main {
 h1 {
     font-family: "Unbounded", sans-serif;
     font-size: 3rem;     /* 48px */
-    font-weight: 700;
+    font-weight: 200;
     color: #1a1a1a;
     text-align: center;
     margin: 3.75rem 0 2.5rem; /* 60px сверху, 40px снизу */
