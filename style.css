@@ -153,6 +153,14 @@ footer {
     text-align: left;
 }
 
+footer a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+
+
+
 
 @media (max-width: 37.5rem) { 
     .nav-menu {
@@ -162,7 +170,7 @@ footer {
 
     .nav-item {
         /* На телефоне иконка и текст лучше смотрятся друг под другом */
-        flex-direction: column; 
+        flex-direction: row; 
         text-align: center;
         padding: 2rem 1rem;
     }
@@ -179,9 +187,3 @@ footer {
         text-align: center;
     }
 } 
-
-
-footer a {
-    color: inherit;
-    text-decoration: underline;
-}
