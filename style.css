@@ -121,7 +121,7 @@ h1::after {
 /* Правая часть: 60% под текст */
 .nav-text {
   flex: 0 0 60%; /* Занимает ровно 60% ширины */
-  font-size: 1rem; 
+  font-size: 2rem; 
   text-align: left; /* Текст теперь лучше прижать к левому краю своей зоны */
   line-height: 1.3;
   padding-right: 0.5rem;
