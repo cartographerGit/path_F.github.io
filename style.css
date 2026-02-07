@@ -95,25 +95,42 @@ h1::after {
   transition: 0.3s ease;
 }
 
-.nav-item:hover {
-  border-color: #000;
-  background-color: #f9f9f9;
-  transform: translateY(-3px);
+/* Исправляем сетку */
+.nav-menu {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Четко 2 колонки */
+    gap: 1rem;
+    width: 100%;
+    max-width: 100%; /* Чтобы не вылезало за края */
+    box-sizing: border-box;
 }
 
+/* Исправляем размер карточек */
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Выравнивание по верху, чтобы текст был в линию */
+    min-height: 10rem; /* Одинаковая минимальная высота для всех */
+    padding: 1.5rem 0.5rem;
+    box-sizing: border-box; /* Чтобы padding не раздувал карточку */
+}
+
+/* Исправляем размер иконок */
 .icon-wrapper {
-  /* Отступ между иконкой и текстом 16px */
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    width: 3.5rem;   /* Фиксированный контейнер для иконки */
+    height: 3.5rem;
+    margin-bottom: 1rem;
+    flex-shrink: 0;  /* Чтобы иконка не сжималась */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .nav-icon {
-  /* Размер иконки 48px */
-  width: 3rem;  
-  height: 3rem;
-  object-fit: contain;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Картинка впишется в 3.5rem, не меняя размер карточки */
 }
 
 .nav-text {
