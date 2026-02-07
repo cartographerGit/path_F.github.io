@@ -72,73 +72,59 @@ h1::after {
 
 .nav-item {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  flex-direction: row; /* Иконка и текст в одну линию */
+  align-items: center; /* Центрирование по вертикали */
+  justify-content: space-between; /* Располагаем элементы по краям */
   
-  /* Внутренние отступы */
-  padding: 2rem 1rem; 
+  padding: 1.5rem 1rem; 
   text-decoration: none;
   background-color: #ffffff;
-  /* Тонкая рамка в px для четкости */
   border: 1px solid #e0e0e0; 
-  /* Закругление углов 16px под стиль шрифта */
   border-radius: 1rem; 
   
-  /* Настройки Unbounded */
   font-family: "Unbounded", sans-serif;
   font-weight: 200;
   color: #1a1a1a;
   
-  /* Плавная реакция на наведение */
   transition: 0.3s ease;
+  overflow: hidden; /* Чтобы иконка не вылезала при зуме */
 }
 
-/* Исправляем сетку */
-.nav-menu {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Четко 2 колонки */
-    gap: 1rem;
-    width: 100%;
-    max-width: 100%; /* Чтобы не вылезало за края */
-    box-sizing: border-box;
+/* Эффект при наведении на всю карточку */
+.nav-item:hover {
+  border-color: #000;
+  background-color: #f9f9f9;
+  transform: translateY(-3px);
 }
 
-/* Исправляем размер карточек */
-.nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start; /* Выравнивание по верху, чтобы текст был в линию */
-    min-height: 10rem; /* Одинаковая минимальная высота для всех */
-    padding: 1.5rem 0.5rem;
-    box-sizing: border-box; /* Чтобы padding не раздувал карточку */
+/* Зум иконки при наведении на карточку */
+.nav-item:hover .nav-icon {
+  transform: scale(1.15); /* Увеличение на 15% */
 }
 
-/* Исправляем размер иконок */
+/* Левая часть: 30% под иконку */
 .icon-wrapper {
-  margin-bottom: 1.5rem; /* Чуть больше отступ до текста */
+  flex: 0 0 30%; /* Занимает ровно 30% ширины, не сжимается */
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%; /* Контейнер на всю ширину карточки для центровки */
+  margin-bottom: 0; /* Убираем нижний отступ, так как теперь мы в ряд */
 }
 
-/* Увеличиваем саму иконку */
 .nav-icon {
-  width: 5.5rem;  /* Было 3rem, стало ~88px */
-  height: 5.5rem; /* Делаем квадратную область */
-  object-fit: contain; /* Картинка впишется без искажений */
-  display: block;
+  width: 4rem;  /* Оптимальный размер для горизонтальной карточки */
+  height: 4rem;
+  object-fit: contain;
+  transition: transform 0.3s ease; /* Плавный зум */
 }
 
-/* Настройка текста под крупную иконку */
+/* Правая часть: 60% под текст */
 .nav-text {
-  font-family: "Unbounded", sans-serif;
-  font-weight: 200;
-  font-size: 1.1rem; /* Чуть увеличим текст для баланса */
-  text-align: center;
-  line-height: 1.2;
+  flex: 0 0 60%; /* Занимает ровно 60% ширины */
+  font-size: 1rem; 
+  text-align: left; /* Текст теперь лучше прижать к левому краю своей зоны */
+  line-height: 1.3;
+  padding-right: 0.5rem;
 }
 
 /* 5. Футер */
@@ -150,6 +136,43 @@ footer {
     font-size: 0.875rem; /* 14px */
     color: #888;
     text-align: left;
+}
+
+
+@media (max-width: 30rem) { /* ~480px */
+    
+    .nav-menu {
+        /* На очень маленьких экранах лучше делать 1 колонку, 
+           чтобы текст Unbounded Extra Light был читаемым */
+        grid-template-columns: 1fr; 
+        gap: 0.75rem;
+    }
+
+    .nav-item {
+        flex-direction: column; /* Возвращаем иконку НАД текстом */
+        text-align: center;
+        padding: 1.5rem 1rem;
+        min-height: auto;
+    }
+
+    .icon-wrapper {
+        flex: 0 0 auto; /* Отменяем 30% ширины */
+        width: 100%;
+        margin-bottom: 1rem; /* Снова добавляем отступ снизу */
+    }
+
+    .nav-text {
+        flex: 0 0 auto; /* Отменяем 60% ширины */
+        width: 100%;
+        text-align: center; /* Центрируем текст для красоты */
+        font-size: 0.9rem; /* Чуть уменьшаем шрифт для мобилок */
+        padding-right: 0;
+    }
+
+    .nav-icon {
+        width: 4.5rem; /* Делаем иконку чуть крупнее в мобильной версии */
+        height: 4.5rem;
+    }
 }
 
 footer a {
