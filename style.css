@@ -72,34 +72,18 @@ h1::after {
 
 .nav-item {
   display: flex;
-  flex-direction: row; /* Иконка и текст в одну линию */
-  align-items: center; /* Центрирование по вертикали */
-  justify-content: space-between; /* Располагаем элементы по краям */
+  flex-direction: row;
+  align-items: center; /* Центрирует иконку и текст по вертикали */
+  justify-content: space-between;
   
-  padding: 0.5rem 0.5rem; 
+  /* Увеличиваем padding сверху и снизу, чтобы карточка стала выше */
+  padding: 2.5rem 1.5rem; 
+  min-height: 10rem; /* Гарантирует высоту всей карточки */
+  
+  border: 1px solid #e0e0e0;
+  border-radius: 1rem;
   text-decoration: none;
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0; 
-  border-radius: 1rem; 
-  
-  font-family: "Unbounded", sans-serif;
-  font-weight: 200;
-  color: #1a1a1a;
-  
   transition: 0.3s ease;
-  overflow: hidden; /* Чтобы иконка не вылезала при зуме */
-}
-
-/* Эффект при наведении на всю карточку */
-.nav-item:hover {
-  border-color: #000;
-  background-color: #f9f9f9;
-  transform: translateY(-3px);
-}
-
-/* Зум иконки при наведении на карточку */
-.nav-item:hover .nav-icon {
-  transform: scale(1.15); /* Увеличение на 15% */
 }
 
 /* Левая часть: 35% под иконку */
@@ -126,15 +110,22 @@ h1::after {
   transition: transform 0.3s ease;
 }
 
-
-
 /* Правая часть: 65% под текст */
 .nav-text {
-  flex: 0 0 65%; /* Занимает ровно 65% ширины */
-  font-size: 4rem; 
-  text-align: left; /* Текст теперь лучше прижать к левому краю своей зоны */
+  flex: 0 0 65%;
+  padding-left: 1rem; /* Отступ от иконки */
+  
+  font-family: "Unbounded", sans-serif;
+  font-weight: 200;
+  font-size: 1rem;
   line-height: 1.3;
-  padding-right: 0.5rem;
+  color: #1a1a1a;
+  text-align: left;
+}
+
+/* Эффект зума для крупной иконки */
+.nav-item:hover .nav-icon {
+  transform: scale(1.1);
 }
 
 /* 5. Футер */
@@ -149,7 +140,7 @@ footer {
 }
 
 
-<!--  @media (max-width: 30rem) { /* ~480px */
+@media (max-width: 30rem) { /* ~480px */
     
     .nav-menu {
         /* На очень маленьких экранах лучше делать 1 колонку, 
@@ -183,7 +174,8 @@ footer {
         width: 6.5rem; /* Делаем иконку чуть крупнее в мобильной версии */
         height: 6.5rem;
     }
-} -->
+} 
+*/
 
 footer a {
     color: inherit;
