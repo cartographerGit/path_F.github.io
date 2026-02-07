@@ -16,6 +16,19 @@ body {
     background-color: #fff;
 }
 
+/* Стили для хедера на всю ширину */
+.full-width-header {
+    width: 100%;
+    display: block;
+    line-height: 0; /* Убирает зазор под картинкой */
+}
+
+.banner-image {
+    width: 100%;
+    height: auto; /* Сохраняет пропорции при растяжении */
+    display: block;
+}
+
 /* 2. Контентная часть */
 main {
     flex: 1 0 auto;
