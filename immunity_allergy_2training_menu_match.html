@@ -105,7 +105,7 @@
         
         const isRight = Math.random() > 0.5;
         const wordPool = isRight ? round.right : round.wrong;
-        el.innerText = wordPool[Math.floor(Math.random() * wordPool.length)];
+        el.innerHTML = wordPool[Math.floor(Math.random() * wordPool.length)];
         
         container.appendChild(el);
 
