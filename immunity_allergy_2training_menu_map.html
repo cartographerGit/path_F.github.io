@@ -1,157 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Circle Quiz Game</title>
+    <title>Flash Cards Simple</title>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #222; color: white; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: #f8f9fa; 
+            margin: 0;
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
         
-        #game-container {
-            position: relative;
-            display: inline-block;
-            margin-top: 20px;
-            border: 5px solid #444;
+        /* Верхняя секция: Текст и Картинка */
+        .header-content {
+            text-align: center;
+            max-width: 700px;
+            margin-bottom: 40px;
         }
 
-        #background-img {
-            display: block;
-            max-width: 1000px; /* Adjust based on your image size */
+        .header-content img {
+            width: 100%;
+            max-width: 400px;
             height: auto;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
 
-        .circle {
+        .header-content h1 { color: #333; margin: 0 0 10px 0; }
+        .header-content p { color: #666; font-size: 1.1rem; }
+
+        /* Сетка: 2 на ПК, 1 на телефоне */
+        .grid {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(2, 1fr);
+            width: 100%;
+            max-width: 900px;
+        }
+
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        /* Контейнер карточки */
+        .card {
+            perspective: 1000px;
+            height: 220px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        /* Класс для поворота */
+        .card.is-flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
             position: absolute;
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            font-weight: bold;
-            color: #333;
-            border: 2px solid #555;
-            transition: transform 0.2s;
-        }
-
-        .circle:hover { transform: scale(1.2); background: #fff; }
-        .circle.hidden { display: none; }
-
-        #stats { font-size: 24px; margin: 10px; color: #ff4d4d; }
-
-        /* Modal Styles */
-        #quiz-modal {
-            display: none;
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            color: black;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            z-index: 100;
+            border-radius: 16px;
+            padding: 25px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             text-align: center;
+            font-size: 1.2rem;
+            font-weight: 500;
         }
 
-        .answer-btn {
-            display: block;
-            width: 100%;
-            margin: 10px 0;
-            padding: 10px;
-            cursor: pointer;
-            background: #eee;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+        .card-front {
+            background: white;
+            color: #333;
+            border: 1px solid #eee;
         }
 
-        .answer-btn:hover { background: #ddd; }
-
-        #overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 50;
+        .card-back {
+            background: #4A90E2;
+            color: white;
+            transform: rotateY(180deg);
         }
     </style>
 </head>
 <body>
 
-    <h1>Find the Circles!</h1>
-    <div id="stats">Lifes: <span id="life-count">7</span></div>
-
-    <div id="game-container">
-        <!-- Your Image -->
-        <img src="look.png" id="background-img" alt="Game Background">
-
-        <!-- Circles (Positioned via top/left %) -->
-        <div class="circle" style="top: 20%; left: 30%;" onclick="openQuiz(0)">?</div>
-        <div class="circle" style="top: 50%; left: 15%;" onclick="openQuiz(1)">?</div>
-        <div class="circle" style="top: 70%; left: 80%;" onclick="openQuiz(2)">?</div>
+    <!-- Текст и картинка над карточками -->
+    <div class="header-content">
+        <img src="https://images.unsplash.com" alt="Learning">
+        <h1>Тренажер знаний</h1>
+        <p>Нажимайте на карточки ниже, чтобы проверить свои ответы.</p>
     </div>
 
-    <!-- Quiz UI -->
-    <div id="overlay"></div>
-    <div id="quiz-modal">
-        <h3 id="question-text">Question goes here?</h3>
-        <div id="answers-container"></div>
+    <div class="grid">
+        <!-- Карточка 1 -->
+        <div class="card" onclick="this.classList.toggle('is-flipped')">
+            <div class="card-inner">
+                <div class="card-front">Вопрос: Что такое семантика в HTML?</div>
+                <div class="card-back">Использование тегов, которые описывают смысл контента (например, article, nav, header).</div>
+            </div>
+        </div>
+
+        <!-- Карточка 2 -->
+        <div class="card" onclick="this.classList.toggle('is-flipped')">
+            <div class="card-inner">
+                <div class="card-front">Вопрос: Разница между margin и padding?</div>
+                <div class="card-back">Margin — внешний отступ, Padding — внутренний отступ элемента.</div>
+            </div>
+        </div>
+
+        <!-- Карточка 3 -->
+        <div class="card" onclick="this.classList.toggle('is-flipped')">
+            <div class="card-inner">
+                <div class="card-front">Вопрос: Для чего нужен тег alt у картинок?</div>
+                <div class="card-back">Для описания изображения, если оно не загрузилось, и для слабовидящих пользователей.</div>
+            </div>
+        </div>
+
+        <!-- Карточка 4 -->
+        <div class="card" onclick="this.classList.toggle('is-flipped')">
+            <div class="card-inner">
+                <div class="card-front">Вопрос: Что делает свойство z-index?</div>
+                <div class="card-back">Определяет порядок наложения элементов друг на друга по оси Z.</div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        let lives = 7;
-        let currentCircle = null;
-
-        const questions = [
-            { q: "What is 2 + 2?", a: ["3", "4", "5"], correct: 1 },
-            { q: "Which planet is known as the Red Planet?", a: ["Mars", "Venus", "Jupiter"], correct: 0 },
-            { q: "What is the capital of France?", a: ["Berlin", "London", "Paris"], correct: 2 }
-        ];
-
-        function openQuiz(index) {
-            currentCircle = index;
-            const data = questions[index];
-            document.getElementById('question-text').innerText = data.q;
-            
-            const container = document.getElementById('answers-container');
-            container.innerHTML = '';
-            
-            data.a.forEach((ans, i) => {
-                const btn = document.createElement('button');
-                btn.className = 'answer-btn';
-                btn.innerText = ans;
-                btn.onclick = () => checkAnswer(i, data.correct);
-                container.appendChild(btn);
-            });
-
-            document.getElementById('quiz-modal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
-
-        function checkAnswer(selected, correct) {
-            if (selected === correct) {
-                alert("Correct!");
-                // Hide the circle that was just solved
-                document.querySelectorAll('.circle')[currentCircle].classList.add('hidden');
-            } else {
-                lives--;
-                document.getElementById('life-count').innerText = lives;
-                alert("Wrong! You lost a life.");
-                
-                if (lives <= 0) {
-                    alert("Game Over!");
-                    location.reload();
-                }
-            }
-            closeQuiz();
-        }
-
-        function closeQuiz() {
-            document.getElementById('quiz-modal').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
-        }
-    </script>
 </body>
 </html>
