@@ -84,7 +84,7 @@
         { q: "Сколько бит в байте?", a: ["10", "8", "16"], c: "8" }
     ];
 
-    function initRound() {
+   function initRound() {
         if (round > 10) return end(true);
         document.getElementById("round").innerText = round;
         document.getElementById("q-box").innerText = questions[round-1].q;
@@ -93,8 +93,17 @@
         questions[round-1].a.forEach(text => {
             let pos;
             while(!pos) {
-                let p = { x: Math.floor(Math.random()*DIM), y: Math.floor(Math.random()*DIM) };
-                if (!snake.some(s=>s.x===p.x && s.y===p.y) && !answers.some(a=>a.x===p.x && a.y===p.y)) pos = p;
+                // Генерируем от 1 до 18 (вместо 0-19), чтобы не касаться границ
+                let p = { 
+                    x: Math.floor(Math.random() * (DIM - 2)) + 1, 
+                    y: Math.floor(Math.random() * (DIM - 2)) + 1 
+                };
+                
+                // Проверка: не наступили ли на змейку или другой ответ
+                if (!snake.some(s => s.x === p.x && s.y === p.y) && 
+                    !answers.some(a => a.x === p.x && a.y === p.y)) {
+                    pos = p;
+                }
             }
             answers.push({ ...pos, text, isC: text === questions[round-1].c });
         });
@@ -112,7 +121,7 @@
     function end(win) {
         active = false;
         document.getElementById("overlay").style.display = "flex";
-        document.getElementById("msg").innerText = win ? "ПОБЕДА! 🎉" : "ПОТРАЧЕНО 💀";
+        document.getElementById("msg").innerText = win ? "ПОБЕДА! 🎉" : "ТАКОГО НЕ БЫЛОО 😭";
     }
 
     function update() {
@@ -185,6 +194,12 @@
     resetGame();
     // Скорость: 220мс (было 150)
     setInterval(() => { update(); draw(); }, 220);
+
+    canvas.onclick = () => {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    }
+};
 </script>
 </body>
 </html>
