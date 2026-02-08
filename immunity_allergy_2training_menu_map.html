@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Flash Cards</title>
+    <title>Big Flash Cards</title>
     <style>
         body { 
             font-family: 'Segoe UI', sans-serif; 
@@ -13,7 +13,7 @@
         }
 
         .header-content { text-align: center; max-width: 800px; margin-bottom: 30px; }
-        .header-content img { width: 100%; max-width: 350px; border-radius: 15px; margin-bottom: 15px; }
+        .header-content img { width: 100%; max-width: 250px; border-radius: 15px; }
 
         /* Сетка: 8 на ПК, 4 на мобильных */
         .grid {
@@ -22,38 +22,45 @@
             grid-template-columns: repeat(8, 1fr);
             width: 100%;
             max-width: 1200px;
-            grid-auto-flow: dense; /* Умное заполнение пустот */
+            grid-auto-flow: dense;
         }
 
-        @media (max-width: 900px) {
-            .grid { grid-template-columns: repeat(4, 1fr); }
-        }
+        /* Адаптивность колонок */
+        @media (max-width: 1000px) { .grid { grid-template-columns: repeat(6, 1fr); } }
+        @media (max-width: 600px) { .grid { grid-template-columns: repeat(4, 1fr); } }
 
-        /* Базовое состояние маленькой карточки */
+        /* Маленькая карточка */
         .card {
             perspective: 1000px;
-            height: 100px; 
+            height: 80px; 
             cursor: pointer;
-            transition: all 0.4s ease;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Состояние большой карточки при клике */
+        /* ГИГАНТСКАЯ карточка при клике */
         .card.is-active {
-            grid-column: span 2; /* Занимает 2 колонки */
-            grid-row: span 2;    /* Занимает 2 ряда */
-            height: 210px;       /* Увеличиваем высоту */
-            z-index: 10;
+            grid-column: span 4; /* Занимает 4 колонки из 8 */
+            grid-row: span 4;    /* Занимает 4 ряда в высоту */
+            height: 350px;       /* Значительно увеличиваем высоту */
+            z-index: 100;
+        }
+
+        /* На мобильных 4 колонки — это весь экран по ширине */
+        @media (max-width: 600px) {
+            .card.is-active {
+                grid-column: span 4;
+                height: 300px;
+            }
         }
 
         .card-inner {
             position: relative;
             width: 100%;
             height: 100%;
-            transition: transform 0.6s;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
         }
 
-        /* Переворот только когда карточка активна */
         .card.is-active .card-inner {
             transform: rotateY(180deg);
         }
@@ -66,93 +73,81 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
-            padding: 10px;
+            border-radius: 12px;
+            padding: 15px;
             box-sizing: border-box;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             text-align: center;
+        }
+
+        .card-front { 
+            background: white; 
+            border: 1px solid #ddd; 
             font-size: 0.8rem;
-            overflow: hidden;
+            font-weight: bold;
         }
 
-        .card-front { background: white; border: 1px solid #ddd; }
         .card-back { 
-            background: #4A90E2; color: white; 
+            background: #4A90E2; 
+            color: white; 
             transform: rotateY(180deg); 
-            font-size: 1rem; /* Текст ответа чуть крупнее */
+            font-size: 1.4rem; /* Крупный текст для ответа */
         }
 
-        .card.is-active .card-front { font-size: 1rem; }
+        /* Плавное увеличение текста при активации */
+        .card.is-active .card-front { font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
     <div class="header-content">
         <img src="https://images.unsplash.com" alt="Learning">
-        <h1>Мини-карточки</h1>
-        <p>Нажми на маленькую карточку, чтобы увеличить её и увидеть ответ.</p>
+        <h1>Тренажер (Макси-размер)</h1>
+        <p>Кликните на карточку, чтобы она раскрылась на пол-экрана.</p>
     </div>
 
-    <div class="grid" id="cardGrid">
-        <!-- Пример карточек (можно продублировать) -->
-        <div class="card" onclick="toggleCard(this)">
-            <div class="card-inner">
-                <div class="card-front">HTML</div>
-                <div class="card-back">Структура страницы</div>
-            </div>
-        </div>
-        <div class="card" onclick="toggleCard(this)">
-            <div class="card-inner">
-                <div class="card-front">CSS</div>
-                <div class="card-back">Стили и дизайн</div>
-            </div>
-        </div>
-        <div class="card" onclick="toggleCard(this)">
-            <div class="card-inner">
-                <div class="card-front">JS</div>
-                <div class="card-back">Логика и скрипты</div>
-            </div>
-        </div>
-        <div class="card" onclick="toggleCard(this)">
-            <div class="card-inner">
-                <div class="card-front">API</div>
-                <div class="card-back">Интерфейс программ</div>
-            </div>
-        </div>
-        <div class="card" onclick="toggleCard(this)">
-            <div class="card-inner">
-                <div class="card-front">DOM</div>
-                <div class="card-back">Дерево объектов</div>
-            </div>
-        </div>
-        <div class="card" onclick="toggleCard(this)">
-            <div class="card-inner">
-                <div class="card-front">Node.js</div>
-                <div class="card-back">Серверный JS</div>
-            </div>
-        </div>
-        <div class="card" onclick="toggleCard(this)">
-            <div class="card-inner">
-                <div class="card-front">SQL</div>
-                <div class="card-back">Базы данных</div>
-            </div>
-        </div>
-        <div class="card" onclick="toggleCard(this)">
-            <div class="card-inner">
-                <div class="card-front">Git</div>
-                <div class="card-back">Контроль версий</div>
-            </div>
-        </div>
-    </div>
+    <div class="grid">
+        <!-- Генерируем 16 карточек для наглядности -->
+        <script>
+            const qa = [
+                {q: "HTML", a: "HyperText Markup Language"},
+                {q: "CSS", a: "Cascading Style Sheets"},
+                {q: "JS", a: "JavaScript Engine"},
+                {q: "DOM", a: "Document Object Model"},
+                {q: "API", a: "Application Interface"},
+                {q: "SQL", a: "Structured Query Language"},
+                {q: "URL", a: "Uniform Resource Locator"},
+                {q: "HTTP", a: "HyperText Transfer Protocol"},
+                {q: "JSON", a: "JS Object Notation"},
+                {q: "GIT", a: "Version Control System"},
+                {q: "V8", a: "Google JS Engine"},
+                {q: "NPM", a: "Node Package Manager"},
+                {q: "UI", a: "User Interface"},
+                {q: "UX", a: "User Experience"},
+                {q: "CLI", a: "Command Line Interface"},
+                {q: "DRY", a: "Don't Repeat Yourself"}
+            ];
 
-    <script>
-        function toggleCard(card) {
-            // Если нужно, чтобы только одна карточка была открыта одновременно:
-            // document.querySelectorAll('.card').forEach(c => { if(c !== card) c.classList.remove('is-active'); });
-            
-            card.classList.toggle('is-active');
-        }
-    </script>
+            qa.forEach(item => {
+                document.write(`
+                    <div class="card" onclick="toggleCard(this)">
+                        <div class="card-inner">
+                            <div class="card-front">${item.q}</div>
+                            <div class="card-back">${item.a}</div>
+                        </div>
+                    </div>
+                `);
+            });
+
+            function toggleCard(card) {
+                // Закрываем другие карточки, если кликаем на новую
+                document.querySelectorAll('.card').forEach(c => {
+                    if (c !== card) c.classList.remove('is-active');
+                });
+                card.classList.toggle('is-active');
+            }
+        </script>
+    </div>
 
 </body>
 </html>
