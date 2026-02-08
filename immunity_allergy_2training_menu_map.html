@@ -76,20 +76,46 @@
 
     <div class="grid" id="cardGrid"></div>
 
-    <script>
-        const items = ["HTML", "CSS", "JS", "PHP", "SQL", "GIT", "API", "DOM", "JSON", "REST", "WEB", "UI", "UX", "URL", "NPM", "V8"];
-        const grid = document.getElementById('cardGrid');
+<script>
+    // 1. Здесь пишем свои вопросы (q) и ответы (a)
+    const cardsData = [
+        { q: "1", a: "Ещё не готово" },
+        { q: "2", a: "Ещё не готово" },
+        { q: "3", a: "Ещё не готово" },
+        { q: "4", a: "Ещё не готово" },
+        { q: "5", a: "Ещё не готово" },
+        { q: "6", a: "Ещё не готово" }
+        { q: "7", a: "Ещё не готово" }
+        { q: "8", a: "Ещё не готово" }
+        // Добавляй новые строки по аналогии выше
+    ];
 
-        items.forEach(text => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.onclick = () => {
-                document.querySelectorAll('.card').forEach(c => { if(c !== card) c.classList.remove('is-active'); });
-                card.classList.toggle('is-active');
-            };
-            card.innerHTML = `<div class="card-inner"><div class="card-front">${text}</div><div class="card-back">Описание для ${text}</div></div>`;
-            grid.appendChild(card);
-        });
-    </script>
+    const grid = document.getElementById('cardGrid');
+
+    // 2. Проходимся по каждой паре данных
+    cardsData.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        
+        card.onclick = () => {
+            // Закрываем другие карточки при клике на новую
+            document.querySelectorAll('.card').forEach(c => { 
+                if(c !== card) c.classList.remove('is-active'); 
+            });
+            card.classList.toggle('is-active');
+        };
+
+        // 3. Подставляем q в переднюю сторону, а a — в заднюю
+        card.innerHTML = `
+            <div class="card-inner">
+                <div class="card-front">${item.q}</div>
+                <div class="card-back">${item.a}</div>
+            </div>
+        `;
+        
+        grid.appendChild(card);
+    });
+</script>
+
 </body>
 </html>
