@@ -7,7 +7,6 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; padding: 20px; color: #333; }
         
-        /* Секция с текстом над карточками */
         .header-section {
             text-align: center;
             max-width: 800px;
@@ -16,7 +15,6 @@
         .header-section h1 { color: #2c3e50; margin-bottom: 10px; }
         .header-section p { color: #7f8c8d; line-height: 1.6; }
 
-        /* Сетка: 1 колонка на мобильных, 2 на ПК */
         .grid {
             display: grid;
             gap: 25px;
@@ -28,8 +26,8 @@
             .grid { grid-template-columns: 1fr 1fr; }
         }
 
-        /* Карточка */
         .card-container { perspective: 1000px; }
+        
         .card {
             width: 100%;
             height: 220px;
@@ -55,12 +53,12 @@
             box-sizing: border-box;
             font-size: 1.1rem;
             font-weight: 500;
+            text-align: center;
         }
         .card-back { transform: rotateY(180deg); background: #ebf5ff; color: #2980b9; }
         
         img { max-width: 100%; max-height: 100%; border-radius: 6px; object-fit: contain; }
 
-        /* Кнопка */
         .pick-btn {
             display: block;
             width: 100%;
@@ -76,7 +74,6 @@
         }
         .pick-btn:hover { background: #2980b9; }
 
-        /* Список внизу */
         #list-section {
             max-width: 900px;
             margin: 50px auto;
@@ -86,66 +83,59 @@
             border-left: 5px solid #3498db;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-        #selected-questions li { margin-bottom: 8px; color: #444; }
     </style>
 </head>
 <body>
 
-<!-- ТЕКСТ НАД КАРТОЧКАМИ -->
 <div class="header-section">
     <h1>Обучающие карточки</h1>
-    <p>Нажмите на карточку, чтобы узнать ответ. Если вы хотите сохранить вопрос для дальнейшего изучения, нажмите кнопку под ним.</p>
+    <p>Нажмите на карточку, чтобы узнать ответ. Если вы хотите сохранить вопрос, нажмите кнопку под ним.</p>
 </div>
 
-<div class="grid">
+<div class="grid" id="cardGrid">
     
-    <!-- Пример 1: Только текст -->
+    <!-- Карточка 1 -->
     <div class="card-container">
         <div class="card" onclick="this.classList.toggle('flipped')">
             <div class="card-face card-front">Два отличия аллергии и псевдоаллергии</div>
-            <div class="card-face card-back">Apple</div>
+            <div class="card-face card-back">1. Механизм развития<br>2. Зависимость от дозы</div>
         </div>
-        <button class="pick-btn" onclick="addToList('Перевод: Яблоко')">В список вопросов</button>
+        <button class="pick-btn" onclick="addToList('Различия аллергии и псевдоаллергии')">В список вопросов</button>
     </div>
 
-    <!-- Пример 2: Картинка на лицевой стороне -->
+    <!-- Карточка 2 -->
     <div class="card-container">
         <div class="card" onclick="this.classList.toggle('flipped')">
-            
-            <div class="card-face card-front">Четыре примера аллергена, перекрёстных с латексом</div
-            
-            <div class="card-face card-back"><img src="assets/image/латекс.png" alt="JS Logo"></div>
-            
+            <div class="card-face card-front">Четыре примера аллергена, перекрёстных с латексом</div>
+            <div class="card-face card-back">
+                <img src="assets/image/латекс.png" alt="Латекс продукты">
+            </div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Перекресты с латексом')">В список вопросов</button>
     </div>
-        
-        <button class="pick-btn" onclick="addToList('Логотип JavaScript')">В список вопросов</button>
-    </div>
+
+    <!-- Добавьте больше карточек сюда... -->
+
 </div>
 
-<!-- СПИСОК В КОНЦЕ СТРАНИЦЫ -->
 <div id="list-section">
     <h3>Выбранные для повторения:</h3>
     <ul id="selected-questions"></ul>
 </div>
 
 <script>
-    // 1. ПЕРЕМЕШИВАНИЕ (срабатывает само при открытии страницы)
+    // 1. ПЕРЕМЕШИВАНИЕ (исправленное)
     window.addEventListener('DOMContentLoaded', () => {
-        const grid = document.querySelector('.grid');
+        const grid = document.getElementById('cardGrid');
         const cards = Array.from(grid.children);
         
-        // Перетасовываем массив карточек
         for (let i = cards.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [cards[i], cards[j]] = [cards[j], cards[i]];
+            grid.appendChild(cards[j]); // appendChild автоматически перемещает элемент в конец
         }
-        
-        // Очищаем сетку и вставляем перемешанные карточки
-        grid.innerHTML = '';
-        cards.forEach(card => grid.appendChild(card));
     });
 
-    // 2. ДОБАВЛЕНИЕ В СПИСОК (срабатывает по клику на кнопку)
+    // 2. ДОБАВЛЕНИЕ В СПИСОК
     function addToList(text) {
         const list = document.getElementById('selected-questions');
         const li = document.createElement('li');
@@ -153,7 +143,6 @@
         list.appendChild(li);
     }
 </script>
-
 
 </body>
 </html>
