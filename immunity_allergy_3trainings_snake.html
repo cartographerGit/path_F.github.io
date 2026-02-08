@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Snake Quiz Mobile</title>
+    <style>
+        body {
+            display: flex; flex-direction: column; align-items: center;
+            margin: 0; background-color: #2c3e50; color: white;
+            font-family: sans-serif; touch-action: manipulation; overflow: hidden;
+        }
+        #ui-layer { width: 95%; max-width: 500px; text-align: center; margin-top: 10px; }
+        .stats { display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: bold; }
+        #question-box { background: #e67e22; padding: 10px; border-radius: 8px; font-size: 0.9rem; min-height: 40px; }
+        
+        #game-container { position: relative; margin: 10px 0; }
+        canvas { background-color: #34495e; border: 3px solid #ecf0f1; max-width: 90vw; max-height: 50vh; }
+
+        /* Стили для кнопок управления */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(3, 70px);
+            grid-template-rows: repeat(2, 70px);
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .btn {
+            width: 70px; height: 70px; background: rgba(255,255,255,0.2);
+            border: 2px solid white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; user-select: none; -webkit-tap-highlight-color: transparent;
+        }
+        .btn:active { background: rgba(255,255,255,0.5); }
+        .up { grid-column: 2; }
+        .left { grid-column: 1; }
+        .down { grid-column: 2; }
+        .right { grid-column: 3; }
+
+        .game-over {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9); padding: 20px; border-radius: 10px; display: none; z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <div class="stats">
+            <span>Раунд: <span id="round">1</span>/10</span>
+            <span>Жизни: <span id="lives">7</span></span>
+        </div>
+        <div id="question-box">Загрузка...</div>
+    </div>
+
+    <div id="game-container">
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div id="game-over" class="game-over">
+            <h2 id="final-msg">Конец игры</h2>
+            <button onclick="resetGame()" style="padding:10px 20px; cursor:pointer">Заново</button>
+        </div>
+    </div>
+
+    <!-- Кнопки управления для телефона -->
+    <div class="controls">
+        <div class="btn up" id="btn-up">▲</div>
+        <div class="btn left" id="btn-left">◀</div>
+        <div class="btn down" id="btn-down">▼</div>
+        <div class="btn right" id="btn-right">▶</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const roundEl = document.getElementById("round");
+        const livesEl = document.getElementById("lives");
+        const questionEl = document.getElementById("question-box");
+        const gameOverEl = document.getElementById("game-over");
+
+        const gridSize = 20;
+        let snake = [{x: 10, y: 10}];
+        let direction = {x: 0, y: 0};
+        let nextDir = {x: 0, y: 0};
+        let lives = 7;
+        let round = 1;
+        let answers = [];
+        let gameActive = true;
+
+        const questions = [
+            { q: "Сколько будет 5 x 5?", a: ["20", "25", "30"], correct: "25" },
+            { q: "Спутник Земли?", a: ["Марс", "Луна", "Солнце"], correct: "Луна" },
+            { q: "Цвет травы?", a: ["Синий", "Зеленый", "Белый"], correct: "Зеленый" },
+            { q: "Кто лает?", a: ["Кот", "Птица", "Собака"], correct: "Собака" },
+            { q: "Самое быстрое животное?", a: ["Гепард", "Слон", "Черепаха"], correct: "Гепард" },
+            { q: "Зимний месяц?", a: ["Май", "Январь", "Июль"], correct: "Январь" },
+            { q: "Сколько ног у паука?", a: ["6", "8", "10"], correct: "8" },
+            { q: "Что греет землю?", a: ["Луна", "Звезды", "Солнце"], correct: "Солнце" },
+            { q: "Первая буква алфавита?", a: ["Б", "А", "Я"], correct: "А" },
+            { q: "В чем варят суп?", a: ["Сковорода", "Чайник", "Кастрюля"], correct: "Кастрюля" }
+        ];
+
+        function initRound() {
+            if (round > 10) return endGame(true);
+            let q = questions[round-1];
+            questionEl.innerText = q.q;
+            roundEl.innerText = round;
+            answers = q.a.map(text => ({
+                text, x: Math.floor(Math.random()*19), y: Math.floor(Math.random()*19),
+                correct: text === q.correct
+            }));
+        }
+
+        function draw() {
+            if (!gameActive) return;
+            direction = nextDir;
+            let head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+
+            if (head.x<0 || head.x>=20 || head.y<0 || head.y>=20 || snake.some(s=>s.x===head.x && s.y===head.y)) {
+                loseLife(); return;
+            }
+
+            snake.unshift(head);
+            let hitIndex = answers.findIndex(a => a.x === head.x && a.y === head.y);
+            
+            if (hitIndex !== -1) {
+                if (answers[hitIndex].correct) {
+                    round++; initRound();
+                } else {
+                    loseLife();
+                }
+            } else {
+                snake.pop();
+            }
+
+            ctx.clearRect(0,0,400,400);
+            ctx.fillStyle = "#2ecc71";
+            snake.forEach(s => ctx.fillRect(s.x*20, s.y*20, 18, 18));
+
+            ctx.font = "12px Arial"; ctx.textAlign = "center";
+            answers.forEach(a => {
+                ctx.fillStyle = "#f1c40f"; ctx.fillRect(a.x*20, a.y*20, 18, 18);
+                ctx.fillStyle = "white"; ctx.fillText(a.text, a.x*20+10, a.y*20-5);
+            });
+        }
+
+        function loseLife() {
+            lives--; livesEl.innerText = lives;
+            if (lives <= 0) endGame(false);
+            else { snake = [{x:10, y:10}]; nextDir = {x:0,y:0}; }
+        }
+
+        function endGame(win) {
+            gameActive = false;
+            gameOverEl.style.display = "block";
+            document.getElementById("final-msg").innerText = win ? "ПОБЕДА!" : "ИГРА ОКОНЧЕНА";
+        }
+
+        function resetGame() {
+            lives=7; round=1; snake=[{x:10,y:10}]; nextDir={x:0,y:0};
+            livesEl.innerText=lives; gameActive=true; gameOverEl.style.display="none"; initRound();
+        }
+
+        // Управление (Клавиатура + Кнопки)
+        const setDir = (x, y) => {
+            if (x !== -direction.x || y !== -direction.y) nextDir = {x, y};
+        };
+
+        window.addEventListener("keydown", e => {
+            if(e.key==="ArrowUp") setDir(0,-1);
+            if(e.key==="ArrowDown") setDir(0,1);
+            if(e.key==="ArrowLeft") setDir(-1,0);
+            if(e.key==="ArrowRight") setDir(1,0);
+        });
+
+        document.getElementById("btn-up").addEventListener("touchstart", (e) => { e.preventDefault(); setDir(0,-1); });
+        document.getElementById("btn-down").addEventListener("touchstart", (e) => { e.preventDefault(); setDir(0,1); });
+        document.getElementById("btn-left").addEventListener("touchstart", (e) => { e.preventDefault(); setDir(-1,0); });
+        document.getElementById("btn-right").addEventListener("touchstart", (e) => { e.preventDefault(); setDir(1,0); });
+        
+        // Для мышки (если тестировать на ПК в режиме эмуляции)
+        document.getElementById("btn-up").addEventListener("mousedown", () => setDir(0,-1));
+        document.getElementById("btn-down").addEventListener("mousedown", () => setDir(0,1));
+        document.getElementById("btn-left").addEventListener("mousedown", () => setDir(-1,0));
+        document.getElementById("btn-right").addEventListener("mousedown", () => setDir(1,0));
+
+        initRound();
+        setInterval(draw, 200);
+    </script>
+</body>
+</html>
