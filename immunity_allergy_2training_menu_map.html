@@ -3,36 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full Width Header Flash Cards</title>
+    <title>Full Image Flash Cards</title>
     <style>
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background: #f0f2f5; 
-            margin: 0; padding: 0; /* Убираем отступы у body */
+            margin: 0; padding: 0; 
             display: flex; flex-direction: column; align-items: center; 
         }
 
-        /* КАРТИНКА НА ВСЮ ШИРИНУ */
+        /* КАРТИНКА ПОЛНОСТЬЮ */
         .hero-image {
-            width: 100%;
-            height: 40vh; /* Занимает 40% высоты экрана */
-            object-fit: cover; /* Заполняет пространство без искажений */
+            width: 100%;       /* Растягиваем на всю ширину */
+            height: auto;      /* Высота подстраивается автоматически, чтобы сохранить пропорции */
             display: block;
+            max-height: 500px; /* Опционально: ограничиваем максимальную высоту, чтобы не скроллить вечно */
+            background-color: #fff; /* Фон, если картинка прозрачная */
         }
 
         .header-content { 
             text-align: center; 
             max-width: 900px; 
-            padding: 40px 20px; 
+            padding: 30px 20px; 
         }
 
-        .header-content h1 { font-size: 2.5rem; color: #222; margin: 0; }
-        .header-content p { font-size: 1.2rem; color: #555; }
+        .header-content h1 { font-size: 2.2rem; color: #222; margin: 0; }
+        .header-content p { font-size: 1.1rem; color: #666; }
 
-        /* СЕТКА (оставляем в контейнере) */
+        /* СЕТКА */
         .grid-container {
             width: 100%;
-            max-width: 1400px; /* Сетка может быть шире для 8 колонок */
+            max-width: 1200px; 
             padding: 20px;
             box-sizing: border-box;
         }
@@ -50,21 +51,20 @@
         /* КАРТОЧКИ */
         .card {
             perspective: 1000px;
-            height: 90px; 
+            height: 80px; 
             cursor: pointer;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* ГИГАНТСКАЯ карточка */
         .card.is-active {
             grid-column: span 4; 
             grid-row: span 4;    
-            height: 400px;       
+            height: 380px;       
             z-index: 100;
         }
 
         @media (max-width: 600px) {
-            .card.is-active { grid-column: span 4; height: 320px; }
+            .card.is-active { grid-column: span 4; height: 300px; }
         }
 
         .card-inner {
@@ -81,59 +81,57 @@
             width: 100%; height: 100%;
             backface-visibility: hidden;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 12px; padding: 10px; box-sizing: border-box;
+            border-radius: 10px; padding: 10px; box-sizing: border-box;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             text-align: center;
         }
 
-        .card-front { background: white; border: 1px solid #ddd; font-weight: bold; font-size: 0.9rem; }
+        .card-front { background: white; border: 1px solid #ddd; font-weight: bold; font-size: 0.85rem; }
         .card-back { 
             background: #4A90E2; color: white; 
-            transform: rotateY(180deg); font-size: 1.5rem; padding: 30px;
+            transform: rotateY(180deg); font-size: 1.4rem; padding: 25px;
         }
-
-        .card.is-active .card-front { font-size: 1.3rem; }
     </style>
 </head>
 <body>
 
-    <!-- Картинка сверху на всю ширину -->
-    <img src="assets/image/аллергия.png" alt="image" class="hero-image">
+    <!-- Картинка, которая отображается целиком -->
+    <img src="assets/image/аллергия.png" alt="iamge" class="hero-image">
 
     <div class="header-content">
-        <h1>IT Encyclopedia</h1>
-        <p>Кликайте на термины, чтобы изучить их детально.</p>
+        <h1>Справочник разработчика</h1>
+        <p>Нажмите на карточку, чтобы развернуть ответ на весь экран.</p>
     </div>
 
     <div class="grid-container">
-        <div class="grid" id="mainGrid">
-            <!-- Скрипт создаст карточки автоматически -->
+        <div class="grid" id="cardGrid">
+            <!-- Карточки добавятся через JS -->
         </div>
     </div>
 
     <script>
-        const data = [
-            {q: "HTML", a: "Стандартный язык разметки документов в вебе."},
-            {q: "CSS", a: "Язык для описания внешнего вида документа."},
-            {q: "JS", a: "Мультипарадигменный язык программирования."},
-            {q: "React", a: "JavaScript-библиотека для создания интерфейсов."},
-            {q: "Node", a: "Среда выполнения JS на стороне сервера."},
-            {q: "Git", a: "Распределённая система контроля версий."},
-            {q: "Docker", a: "ПО для автоматизации развёртывания приложений."},
-            {q: "SQL", a: "Язык структурированных запросов к базе данных."},
-            {q: "NoSQL", a: "Подход к реализации хранилищ без таблиц."},
-            {q: "REST", a: "Архитектурный стиль взаимодействия компонентов."},
-            {q: "JSON", a: "Текстовый формат обмена данными."},
-            {q: "SASS", a: "Метаязык на основе CSS для удобства написания."},
-            {q: "NPM", a: "Менеджер пакетов для Node.js."},
-            {q: "CI/CD", a: "Непрерывная интеграция и доставка ПО."},
-            {q: "HTTP", a: "Протокол передачи гипертекста."},
-            {q: "SEO", a: "Поисковая оптимизация сайта."}
+        const cardsData = [
+            {q: "HTML", a: "Язык гипертекстовой разметки"},
+            {q: "CSS", a: "Стили оформления"},
+            {q: "JS", a: "Логика страниц"},
+            {q: "Vue", a: "Прогрессивный фреймворк"},
+            {q: "React", a: "UI библиотека"},
+            {q: "Node", a: "Серверный JS"},
+            {q: "NPM", a: "Менеджер пакетов"},
+            {q: "Git", a: "Контроль версий"},
+            {q: "SQL", a: "Язык запросов"},
+            {q: "NoSQL", a: "Гибкие базы данных"},
+            {q: "API", a: "Программный интерфейс"},
+            {q: "DOM", a: "Структура документа"},
+            {q: "HTTP", a: "Протокол передачи"},
+            {q: "JSON", a: "Формат данных"},
+            {q: "SASS", a: "Препроцессор CSS"},
+            {q: "AJAX", a: "Асинхронные запросы"}
         ];
 
-        const grid = document.getElementById('mainGrid');
+        const grid = document.getElementById('cardGrid');
 
-        data.forEach(item => {
+        cardsData.forEach(item => {
             const card = document.createElement('div');
             card.className = 'card';
             card.onclick = () => {
