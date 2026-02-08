@@ -76,8 +76,20 @@
 
     <div class="grid" id="cardGrid"></div>
 
-<script>
-    // 1. Здесь пишем свои вопросы (q) и ответы (a)
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <script>
+    // 1. Твои данные (Вопрос: q, Ответ: a)
     const cardsData = [
         { q: "1", a: "Ещё не готово" },
         { q: "2", a: "Ещё не готово" },
@@ -87,25 +99,28 @@
         { q: "6", a: "Ещё не готово" }
         { q: "7", a: "Ещё не готово" }
         { q: "8", a: "Ещё не готово" }
-        // Добавляй новые строки по аналогии выше
     ];
 
     const grid = document.getElementById('cardGrid');
 
-    // 2. Проходимся по каждой паре данных
+    // Очищаем сетку перед добавлением (на всякий случай)
+    grid.innerHTML = '';
+
+    // 2. Создаем карточки на основе данных выше
     cardsData.forEach(item => {
         const card = document.createElement('div');
         card.className = 'card';
         
         card.onclick = () => {
-            // Закрываем другие карточки при клике на новую
+            // Закрываем остальные при клике
             document.querySelectorAll('.card').forEach(c => { 
                 if(c !== card) c.classList.remove('is-active'); 
             });
+            // Переключаем текущую
             card.classList.toggle('is-active');
         };
 
-        // 3. Подставляем q в переднюю сторону, а a — в заднюю
+        // 3. Важно: используем item.q и item.a
         card.innerHTML = `
             <div class="card-inner">
                 <div class="card-front">${item.q}</div>
@@ -116,6 +131,16 @@
         grid.appendChild(card);
     });
 </script>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 </body>
 </html>
