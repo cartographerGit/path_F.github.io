@@ -3,151 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Big Flash Cards</title>
+    <title>Full Width Header Flash Cards</title>
     <style>
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background: #f0f2f5; 
-            margin: 0; padding: 20px; 
+            margin: 0; padding: 0; /* Убираем отступы у body */
             display: flex; flex-direction: column; align-items: center; 
         }
 
-        .header-content { text-align: center; max-width: 800px; margin-bottom: 30px; }
-        .header-content img { width: 100%; max-width: 250px; border-radius: 15px; }
+        /* КАРТИНКА НА ВСЮ ШИРИНУ */
+        .hero-image {
+            width: 100%;
+            height: 40vh; /* Занимает 40% высоты экрана */
+            object-fit: cover; /* Заполняет пространство без искажений */
+            display: block;
+        }
 
-        /* Сетка: 8 на ПК, 4 на мобильных */
+        .header-content { 
+            text-align: center; 
+            max-width: 900px; 
+            padding: 40px 20px; 
+        }
+
+        .header-content h1 { font-size: 2.5rem; color: #222; margin: 0; }
+        .header-content p { font-size: 1.2rem; color: #555; }
+
+        /* СЕТКА (оставляем в контейнере) */
+        .grid-container {
+            width: 100%;
+            max-width: 1400px; /* Сетка может быть шире для 8 колонок */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
         .grid {
             display: grid;
             gap: 10px;
             grid-template-columns: repeat(8, 1fr);
-            width: 100%;
-            max-width: 1200px;
             grid-auto-flow: dense;
         }
 
-        /* Адаптивность колонок */
         @media (max-width: 1000px) { .grid { grid-template-columns: repeat(6, 1fr); } }
         @media (max-width: 600px) { .grid { grid-template-columns: repeat(4, 1fr); } }
 
-        /* Маленькая карточка */
+        /* КАРТОЧКИ */
         .card {
             perspective: 1000px;
-            height: 80px; 
+            height: 90px; 
             cursor: pointer;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* ГИГАНТСКАЯ карточка при клике */
+        /* ГИГАНТСКАЯ карточка */
         .card.is-active {
-            grid-column: span 4; /* Занимает 4 колонки из 8 */
-            grid-row: span 4;    /* Занимает 4 ряда в высоту */
-            height: 350px;       /* Значительно увеличиваем высоту */
+            grid-column: span 4; 
+            grid-row: span 4;    
+            height: 400px;       
             z-index: 100;
         }
 
-        /* На мобильных 4 колонки — это весь экран по ширине */
         @media (max-width: 600px) {
-            .card.is-active {
-                grid-column: span 4;
-                height: 300px;
-            }
+            .card.is-active { grid-column: span 4; height: 320px; }
         }
 
         .card-inner {
             position: relative;
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
         }
 
-        .card.is-active .card-inner {
-            transform: rotateY(180deg);
-        }
+        .card.is-active .card-inner { transform: rotateY(180deg); }
 
         .card-front, .card-back {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             backface-visibility: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            padding: 15px;
-            box-sizing: border-box;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; padding: 10px; box-sizing: border-box;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             text-align: center;
         }
 
-        .card-front { 
-            background: white; 
-            border: 1px solid #ddd; 
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-
+        .card-front { background: white; border: 1px solid #ddd; font-weight: bold; font-size: 0.9rem; }
         .card-back { 
-            background: #4A90E2; 
-            color: white; 
-            transform: rotateY(180deg); 
-            font-size: 1.4rem; /* Крупный текст для ответа */
+            background: #4A90E2; color: white; 
+            transform: rotateY(180deg); font-size: 1.5rem; padding: 30px;
         }
 
-        /* Плавное увеличение текста при активации */
-        .card.is-active .card-front { font-size: 1.2rem; }
+        .card.is-active .card-front { font-size: 1.3rem; }
     </style>
 </head>
 <body>
 
+    <!-- Картинка сверху на всю ширину -->
+    <img src="assets/image/аллергия.png" alt="image" class="hero-image">
+
     <div class="header-content">
-        <img src="assets/image/аллергия.png" alt="Расшифровка карты">
-        <h1>Тренажер (Макси-размер)</h1>
-        <p>Кликните на карточку, чтобы она раскрылась на пол-экрана.</p>
+        <h1>IT Encyclopedia</h1>
+        <p>Кликайте на термины, чтобы изучить их детально.</p>
     </div>
 
-    <div class="grid">
-        <!-- Генерируем 16 карточек для наглядности -->
-        <script>
-            const qa = [
-                {q: "HTML", a: "HyperText Markup Language"},
-                {q: "CSS", a: "Cascading Style Sheets"},
-                {q: "JS", a: "JavaScript Engine"},
-                {q: "DOM", a: "Document Object Model"},
-                {q: "API", a: "Application Interface"},
-                {q: "SQL", a: "Structured Query Language"},
-                {q: "URL", a: "Uniform Resource Locator"},
-                {q: "HTTP", a: "HyperText Transfer Protocol"},
-                {q: "JSON", a: "JS Object Notation"},
-                {q: "GIT", a: "Version Control System"},
-                {q: "V8", a: "Google JS Engine"},
-                {q: "NPM", a: "Node Package Manager"},
-                {q: "UI", a: "User Interface"},
-                {q: "UX", a: "User Experience"},
-                {q: "CLI", a: "Command Line Interface"},
-                {q: "DRY", a: "Don't Repeat Yourself"}
-            ];
+    <div class="grid-container">
+        <div class="grid" id="mainGrid">
+            <!-- Скрипт создаст карточки автоматически -->
+        </div>
+    </div>
 
-            qa.forEach(item => {
-                document.write(`
-                    <div class="card" onclick="toggleCard(this)">
-                        <div class="card-inner">
-                            <div class="card-front">${item.q}</div>
-                            <div class="card-back">${item.a}</div>
-                        </div>
-                    </div>
-                `);
-            });
+    <script>
+        const data = [
+            {q: "HTML", a: "Стандартный язык разметки документов в вебе."},
+            {q: "CSS", a: "Язык для описания внешнего вида документа."},
+            {q: "JS", a: "Мультипарадигменный язык программирования."},
+            {q: "React", a: "JavaScript-библиотека для создания интерфейсов."},
+            {q: "Node", a: "Среда выполнения JS на стороне сервера."},
+            {q: "Git", a: "Распределённая система контроля версий."},
+            {q: "Docker", a: "ПО для автоматизации развёртывания приложений."},
+            {q: "SQL", a: "Язык структурированных запросов к базе данных."},
+            {q: "NoSQL", a: "Подход к реализации хранилищ без таблиц."},
+            {q: "REST", a: "Архитектурный стиль взаимодействия компонентов."},
+            {q: "JSON", a: "Текстовый формат обмена данными."},
+            {q: "SASS", a: "Метаязык на основе CSS для удобства написания."},
+            {q: "NPM", a: "Менеджер пакетов для Node.js."},
+            {q: "CI/CD", a: "Непрерывная интеграция и доставка ПО."},
+            {q: "HTTP", a: "Протокол передачи гипертекста."},
+            {q: "SEO", a: "Поисковая оптимизация сайта."}
+        ];
 
-            function toggleCard(card) {
-                // Закрываем другие карточки, если кликаем на новую
+        const grid = document.getElementById('mainGrid');
+
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = () => {
                 document.querySelectorAll('.card').forEach(c => {
                     if (c !== card) c.classList.remove('is-active');
                 });
                 card.classList.toggle('is-active');
-            }
-        </script>
-    </div>
-
+            };
+            card.innerHTML = `
+                <div class="card-inner">
+                    <div class="card-front">${item.q}</div>
+                    <div class="card-back">${item.a}</div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    </script>
 </body>
 </html>
