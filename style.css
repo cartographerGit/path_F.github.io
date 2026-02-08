@@ -281,8 +281,8 @@ footer {
 
     .nav-icon {
         /* Увеличиваем саму иконку до 10rem (~160px) */
-        width: 10rem;
-        height: 10rem;
+        width: 11rem;
+        height: 7rem;
         object-fit: contain;
         /* Добавляем плавность для зума, если он настроен */
         transition: transform 0.3s ease;
@@ -292,7 +292,7 @@ footer {
         flex: 0 0 auto !important;
         width: 100%;
         /* Оставляем читаемый размер для Unbounded */
-        font-size: 1.25rem !important; 
+        font-size: 1.7rem !important; 
         text-align: center;
         display: block;
     }
