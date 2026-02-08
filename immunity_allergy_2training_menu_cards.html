@@ -98,10 +98,11 @@
 </div>
 
 <div class="grid">
+    
     <!-- Пример 1: Только текст -->
     <div class="card-container">
         <div class="card" onclick="this.classList.toggle('flipped')">
-            <div class="card-face card-front">Как по-английски "Яблоко"?</div>
+            <div class="card-face card-front">Два отличия аллергии и псевдоаллергии</div>
             <div class="card-face card-back">Apple</div>
         </div>
         <button class="pick-btn" onclick="addToList('Перевод: Яблоко')">В список вопросов</button>
@@ -126,6 +127,23 @@
 </div>
 
 <script>
+    // 1. ПЕРЕМЕШИВАНИЕ (срабатывает само при открытии страницы)
+    window.addEventListener('DOMContentLoaded', () => {
+        const grid = document.querySelector('.grid');
+        const cards = Array.from(grid.children);
+        
+        // Перетасовываем массив карточек
+        for (let i = cards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [cards[i], cards[j]] = [cards[j], cards[i]];
+        }
+        
+        // Очищаем сетку и вставляем перемешанные карточки
+        grid.innerHTML = '';
+        cards.forEach(card => grid.appendChild(card));
+    });
+
+    // 2. ДОБАВЛЕНИЕ В СПИСОК (срабатывает по клику на кнопку)
     function addToList(text) {
         const list = document.getElementById('selected-questions');
         const li = document.createElement('li');
@@ -133,6 +151,7 @@
         list.appendChild(li);
     }
 </script>
+
 
 </body>
 </html>
