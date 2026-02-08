@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Word Rounds Game</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Arial', sans-serif; background: #121212; color: white; }
+        #game-container { position: relative; width: 100vw; height: 100vh; }
+        
+        /* Стили падающих слов */
+        .word-item { 
+            position: absolute; padding: 15px 25px; background: #333; 
+            border-radius: 30px; cursor: pointer; font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 2px solid #555;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .correct { background: #2ecc71 !important; transform: scale(1.1); }
+        .wrong { background: #e74c3c !important; animation: shake 0.3s; }
+
+        /* Интерфейс */
+        #ui { position: absolute; top: 0; width: 100%; text-align: center; padding: 20px; z-index: 10; }
+        #target-display { font-size: 40px; color: #f1c40f; text-shadow: 0 0 15px rgba(241,196,15,0.4); }
+        #progress { font-size: 18px; color: #aaa; margin-top: 10px; }
+        
+        @keyframes shake {
+            0% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="ui">
+    <div id="target-display">Загрузка...</div>
+    <div id="progress">Раунд: <span id="round-num">1</span> | Нужно собрать: <span id="needed">0</span></div>
+</div>
+
+<div id="game-container"></div>
+
+<script>
+    // --- НАСТРОЙКИ РАУНДОВ ---
+    const rounds = [
+        {
+            target: "ФРУКТЫ", 
+            right: ["ЯБЛОКО", "БАНАН", "ГРУША", "КИВИ"], 
+            wrong: ["СТОЛ", "КОТ", "РОБОТ", "ДОМ"]
+        },
+        {
+            target: "ЦВЕТА", 
+            right: ["КРАСНЫЙ", "СИНИЙ", "БЕЛЫЙ", "ЗЕЛЕНЫЙ"], 
+            wrong: ["ГРОМ", "ТЕЛЕФОН", "ХЛЕБ", "ПИЦЦА"]
+        },
+        {
+            target: "ПРОГРАММИРОВАНИЕ", 
+            right: ["JAVASCRIPT", "PYTHON", "CODE", "LOGIC"], 
+            wrong: ["ЛУНА", "ТРАВА", "ОКНО", "МЯЧ"]
+        },
+        {
+            target: "КОСМОС", 
+            right: ["МАРС", "ЗВЕЗДА", "РАКЕТА", "ЛУНА"], 
+            wrong: ["НОСКИ", "КРУЖКА", "ЛОЖКА", "КНИГА"]
+        }
+    ];
+
+    let currentRoundIdx = 0;
+    let collectedCount = 0;
+    let gameActive = true;
+    const container = document.getElementById('game-container');
+
+    function startRound() {
+        const round = rounds[currentRoundIdx];
+        document.getElementById('target-display').innerText = round.target;
+        document.getElementById('round-num').innerText = currentRoundIdx + 1;
+        collectedCount = 0;
+        updateProgress();
+        
+        // Очищаем старые слова если есть
+        container.innerHTML = '';
+        
+        // Запускаем генерацию слов
+        const spawner = setInterval(() => {
+            if (collectedCount >= rounds[currentRoundIdx].right.length || !gameActive) {
+                clearInterval(spawner);
+                checkRoundEnd();
+                return;
+            }
+            createFallingWord();
+        }, 1000);
+    }
+
+    function createFallingWord() {
+        const round = rounds[currentRoundIdx];
+        const el = document.createElement('div');
+        el.className = 'word-item';
+        
+        // Решаем: создать правильное или неправильное слово
+        const isRight = Math.random() > 0.5;
+        const wordPool = isRight ? round.right : round.wrong;
+        el.innerText = wordPool[Math.floor(Math.random() * wordPool.length)];
+        
+        el.style.left = Math.random() * (window.innerWidth - 150) + 'px';
+        el.style.top = '-60px';
+        container.appendChild(el);
+
+        let top = -60;
+        const interval = setInterval(() => {
+            top += 2.5; 
+            el.style.top = top + 'px';
+
+            if (top > window.innerHeight) {
+                cleanup();
+            }
+        }, 20);
+
+        el.onclick = () => {
+            if (isRight && !el.classList.contains('correct')) {
+                el.classList.add('correct');
+                collectedCount++;
+                updateProgress();
+                setTimeout(cleanup, 200);
+            } else if (!isRight) {
+                el.classList.add('wrong');
+                setTimeout(cleanup, 300);
+            }
+        };
+
+        function cleanup() {
+            clearInterval(interval);
+            if (el.parentNode) container.removeChild(el);
+        }
+    }
+
+    function updateProgress() {
+        const needed = rounds[currentRoundIdx].right.length;
+        document.getElementById('needed').innerText = (needed - collectedCount);
+    }
+
+    function checkRoundEnd() {
+        if (collectedCount >= rounds[currentRoundIdx].right.length) {
+            currentRoundIdx++;
+            if (currentRoundIdx < rounds.length) {
+                setTimeout(() => {
+                    alert("Раунд пройден! Следующая тема...");
+                    startRound();
+                }, 500);
+            } else {
+                alert("ПОБЕДА! Вы прошли все 4 раунда!");
+                location.reload();
+            }
+        }
+    }
+
+    // Запуск игры
+    startRound();
+</script>
+
+</body>
+</html>
