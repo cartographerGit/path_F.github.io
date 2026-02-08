@@ -28,7 +28,7 @@
             .grid { grid-template-columns: repeat(4, 1fr); }
         }
 
-        /* Карточка */
+               /* Карточка */
         .card {
             perspective: 1000px;
             height: 80px;
@@ -59,10 +59,29 @@
             backface-visibility: hidden;
             display: flex; align-items: center; justify-content: center;
             border-radius: 8px; border: 1px solid #ddd;
-            background: white; text-align: center; padding: 5px;
+            background: white; text-align: center; 
+            padding: 15px; /* Увеличил отступ для красоты */
+            box-sizing: border-box;
+            font-size: 1.5rem; /* 1. РАЗМЕР ЦИФРЫ В МАЛЕНЬКОЙ КАРТОЧКЕ */
+            font-weight: bold;  /* Сделал текст жирным */
         }
 
-        .card-back { background: #4A90E2; color: white; transform: rotateY(180deg); }
+        .card-back { 
+            background: #4A90E2; 
+            color: white; 
+            transform: rotateY(180deg); 
+        }
+
+        /* 2. РАЗМЕР ТЕКСТА ТОЛЬКО ВНУТРИ БОЛЬШОЙ КАРТОЧКИ */
+        .card.is-active .card-back {
+            font-size: 2.5rem; 
+        }
+
+        /* 3. РАЗМЕР ЦИФРЫ ВНУТРИ БОЛЬШОЙ КАРТОЧКИ (ПЕРЕД ПЕРЕВОРОТОМ) */
+        .card.is-active .card-front {
+            font-size: 4rem;
+        }
+
     </style>
 </head>
 <body>
