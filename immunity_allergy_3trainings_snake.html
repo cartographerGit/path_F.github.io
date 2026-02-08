@@ -3,32 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Snake Quiz Fixed</title>
+    <title>Snake Quiz Pro</title>
     <style>
-        body { display: flex; flex-direction: column; align-items: center; margin: 0; background: #2c3e50; color: white; font-family: sans-serif; touch-action: none; overflow: hidden; }
-        #ui { width: 95%; max-width: 400px; text-align: center; margin-top: 5px; }
-        .stats { display: flex; justify-content: space-between; font-size: 1.1rem; margin-bottom: 5px; }
-        #q-box { background: #e67e22; padding: 10px; border-radius: 8px; font-weight: bold; min-height: 40px; margin-bottom: 5px; }
-        canvas { background: #34495e; border: 4px solid #ecf0f1; display: block; }
-        .controls { display: grid; grid-template-columns: repeat(3, 65px); gap: 10px; margin-top: 10px; }
-        .btn { width: 65px; height: 65px; background: rgba(255,255,255,0.2); border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; user-select: none; }
-        .btn:active { background: rgba(255,255,255,0.5); }
+        body { 
+            display: flex; flex-direction: column; align-items: center; 
+            margin: 0; background: #2c3e50; color: white; font-family: sans-serif; 
+            touch-action: none; overflow: hidden; height: 100vh;
+        }
+        #ui { width: 95%; max-width: 600px; text-align: center; margin-top: 10px; }
+        .stats { display: flex; justify-content: space-between; font-size: 1.2rem; margin-bottom: 8px; }
+        #q-box { background: #e67e22; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; min-height: 45px; margin-bottom: 10px; box-shadow: 0 4px 0 #d35400; }
+        
+        /* ГИБКОЕ ПОЛЕ */
+        #game-wrapper { position: relative; }
+        canvas { 
+            background: #34495e; border: 5px solid #ecf0f1; display: block; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        /* Настройки для PC (Экран больше 800px) */
+        @media (min-width: 800px) {
+            canvas { width: 600px; height: 600px; }
+            .controls { display: none; } /* Прячем кнопки на PC */
+        }
+
+        /* Настройки для ТЕЛЕФОНА */
+        @media (max-width: 799px) {
+            canvas { width: 90vw; height: 90vw; }
+            .controls { display: grid; grid-template-columns: repeat(3, 70px); gap: 10px; margin-top: 15px; }
+        }
+
+        .btn { width: 70px; height: 70px; background: rgba(255,255,255,0.15); border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .btn:active { background: rgba(255,255,255,0.4); transform: scale(0.95); }
         .up { grid-column: 2; } .left { grid-column: 1; } .down { grid-column: 2; } .right { grid-column: 3; }
-        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+        
+        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; border-radius: 5px; }
+        button { padding: 15px 30px; font-size: 1.2rem; cursor: pointer; border-radius: 10px; border: none; background: #27ae60; color: white; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="ui">
     <div class="stats"><span>Раунд: <span id="round">1</span>/10</span><span>❤️ <span id="lives">7</span></span></div>
-    <div id="q-box">Нажмите стрелку, чтобы начать!</div>
+    <div id="q-box">Нажми стрелку или кнопку, чтобы начать!</div>
 </div>
 
-<div style="position: relative;">
-    <canvas id="game" width="400" height="400"></canvas>
+<div id="game-wrapper">
+    <canvas id="game" width="600" height="600"></canvas>
     <div id="overlay">
         <h1 id="msg">Игра окончена</h1>
-        <button onclick="resetGame()" style="padding:15px 30px; font-size:1.2rem; border-radius:10px; border:none; background:#27ae60; color:white;">ИГРАТЬ СНОВА</button>
+        <button onclick="resetGame()">ИГРАТЬ СНОВА</button>
     </div>
 </div>
 
@@ -42,8 +66,8 @@
 <script>
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
-    const TILE = 20;
-    const DIM = 20; // 20x20 клеток
+    const TILE = 30; // Увеличили размер клетки для 600px поля
+    const DIM = 20;  // 20x20 клеток
 
     let snake, dir, nextDir, lives, round, answers, active;
 
@@ -93,11 +117,9 @@
 
     function update() {
         if (!active || (nextDir.x === 0 && nextDir.y === 0)) return;
-
         dir = nextDir;
         const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
 
-        // Стены или хвост
         if (head.x < 0 || head.x >= DIM || head.y < 0 || head.y >= DIM || snake.some(s=>s.x===head.x && s.y===head.y)) {
             lives--; document.getElementById("lives").innerText = lives;
             if (lives <= 0) return end(false);
@@ -112,7 +134,7 @@
             else { 
                 lives--; document.getElementById("lives").innerText = lives;
                 if (lives <= 0) return end(false);
-                snake.pop(); // Не растет при ошибке
+                snake.pop();
             }
         } else {
             snake.pop();
@@ -120,35 +142,37 @@
     }
 
     function draw() {
-        ctx.clearRect(0,0,400,400);
-        // Сетка для красоты
+        ctx.clearRect(0,0,600,600);
+        
+        // Сетка
         ctx.strokeStyle = "#3d566e";
-        for(let i=0; i<400; i+=TILE) { ctx.strokeRect(i,0,0,400); ctx.strokeRect(0,i,400,0); }
+        for(let i=0; i<=600; i+=TILE) { 
+            ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,600); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(600,i); ctx.stroke();
+        }
 
         // Змейка
-        ctx.fillStyle = "#2ecc71";
         snake.forEach((s, i) => {
             ctx.fillStyle = i === 0 ? "#27ae60" : "#2ecc71";
-            ctx.fillRect(s.x*TILE, s.y*TILE, TILE-2, TILE-2);
+            ctx.fillRect(s.x*TILE+1, s.y*TILE+1, TILE-2, TILE-2);
         });
 
-        // Ответы
-        ctx.font = "bold 14px Arial"; ctx.textAlign = "center";
+        // Ответы (УВЕЛИЧЕННЫЕ)
+        ctx.font = "bold 20px Arial"; ctx.textAlign = "center";
         answers.forEach(a => {
-            ctx.fillStyle = "#f1c40f"; ctx.fillRect(a.x*TILE, a.y*TILE, TILE-2, TILE-2);
-            ctx.fillStyle = "white"; ctx.fillText(a.text, a.x*TILE + TILE/2, a.y*TILE - 5);
+            ctx.fillStyle = "#f1c40f"; ctx.fillRect(a.x*TILE+1, a.y*TILE+1, TILE-2, TILE-2);
+            // Текст с обводкой для видимости
+            ctx.strokeStyle = "black"; ctx.lineWidth = 3;
+            ctx.strokeText(a.text, a.x*TILE + TILE/2, a.y*TILE - 8);
+            ctx.fillStyle = "white"; ctx.fillText(a.text, a.x*TILE + TILE/2, a.y*TILE - 8);
         });
-        requestAnimationFrame(() => {});
     }
 
-    const setDir = (x, y) => { 
-        if (x !== -dir.x || y !== -dir.y) nextDir = {x, y}; 
-    };
+    const setDir = (x, y) => { if (x !== -dir.x || y !== -dir.y) nextDir = {x, y}; };
 
-    // Слушатели
     window.addEventListener("keydown", e => {
-        if(e.key==="ArrowUp") setDir(0,-1); if(e.key==="ArrowDown") setDir(0,1);
-        if(e.key==="ArrowLeft") setDir(-1,0); if(e.key==="ArrowRight") setDir(1,0);
+        if(e.key.includes("Up")) setDir(0,-1); if(e.key.includes("Down")) setDir(0,1);
+        if(e.key.includes("Left")) setDir(-1,0); if(e.key.includes("Right")) setDir(1,0);
     });
 
     const bind = (id, x, y) => {
@@ -159,7 +183,8 @@
     bind("u",0,-1); bind("d",0,1); bind("l",-1,0); bind("r",1,0);
 
     resetGame();
-    setInterval(() => { update(); draw(); }, 150);
+    // Скорость: 220мс (было 150)
+    setInterval(() => { update(); draw(); }, 220);
 </script>
 </body>
 </html>
