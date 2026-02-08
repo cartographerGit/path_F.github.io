@@ -83,7 +83,14 @@
         { q: "Молекула Т-хелпера для соединения с  МНСII", a: ["CD8", "CD4", "АПК"], c: "CD4" },
         { q: "Какой фрагмент Ig связывается с антигеном", a: ["Fab", "Fc", "Fas"], c: "Fab" }
     ];
-
+    
+    function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    }
+    
     function initRound() {
         if (round > 10) return end(true);
         document.getElementById("round").innerText = round;
@@ -110,6 +117,7 @@
     }
 
     function resetGame() {
+        shuffle(questions); 
         snake = [{x: 10, y: 10}];
         dir = {x: 0, y: 0}; nextDir = {x: 0, y: 0};
         lives = 7; round = 1; active = true;
