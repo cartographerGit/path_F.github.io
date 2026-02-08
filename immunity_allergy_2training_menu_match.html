@@ -2,14 +2,11 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Mega Words REM Edition</title>
+    <title>Mega Words Compact</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <style>
-        :root {
-            /* Базовый размер для расчетов rem */
-            font-size: 16px; 
-        }
+        :root { font-size: 16px; }
 
         * {
             touch-action: manipulation;
@@ -18,72 +15,49 @@
         }
 
         body { 
-            margin: 0; 
-            overflow: hidden; 
-            font-family: 'Arial Black', sans-serif; 
-            background: #000; 
-            color: white;
-            touch-action: none;
-            user-select: none;
-            width: 100vw;
-            height: 100vh;
+            margin: 0; overflow: hidden; font-family: 'Arial Black', sans-serif; 
+            background: #000; color: white; touch-action: none; user-select: none;
+            width: 100vw; height: 100vh;
         }
 
         #game-container { 
-            position: relative; 
-            width: 100%; 
-            height: 100%; 
+            position: relative; width: 100%; height: 100%; 
             background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); 
         }
         
-        /* ИСПОЛЬЗУЕМ REM ДЛЯ МАСШТАБИРУЕМОСТИ */
+        /* СЛЕГКА УМЕНЬШЕННЫЕ СЛОВА */
         .word-item { 
             position: absolute; 
-            padding: 1.5rem 2.5rem; /* rem вместо px */
-            background: rgba(40, 40, 40, 0.9); 
-            border-radius: 5rem; 
+            padding: 0.8rem 1.8rem; /* Уменьшили отступы */
+            background: rgba(45, 45, 45, 0.95); 
+            border-radius: 3rem; 
             cursor: pointer; 
             font-weight: 900;
-            font-size: 2.2rem; /* Огромный текст в rem */
-            box-shadow: 0 0.6rem 1.8rem rgba(0,0,0,0.8); 
-            border: 0.25rem solid #555;
+            font-size: 1.7rem; /* Уменьшили шрифт (было 2.2rem) */
+            box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.7); 
+            border: 0.2rem solid #666;
             transition: transform 0.1s;
             text-transform: uppercase;
             text-align: center;
             white-space: nowrap;
-            max-width: 90vw;
+            max-width: 85vw;
         }
 
         .correct { background: #27ae60 !important; border-color: #2ecc71 !important; transform: scale(1.1); }
         .wrong { background: #c0392b !important; border-color: #e74c3c !important; animation: shake 0.3s; }
 
         #ui { 
-            position: absolute; 
-            top: 0; 
-            width: 100%; 
-            text-align: center; 
-            padding: 1rem; 
-            z-index: 10; 
-            background: rgba(0,0,0,0.85); 
-            border-bottom: 0.15rem solid #444; 
+            position: absolute; top: 0; width: 100%; text-align: center; 
+            padding: 0.8rem; z-index: 10; background: rgba(0,0,0,0.85); 
+            border-bottom: 0.1rem solid #444; 
         }
 
-        #target-display { 
-            font-size: 2.5rem; 
-            color: #f1c40f; 
-            margin-bottom: 0.3rem; 
-            display: block;
-        }
-
-        #stats { 
-            font-size: 1.2rem; 
-            color: #fff; 
-            letter-spacing: 0.05rem;
-        }
+        #target-display { font-size: 2.2rem; color: #f1c40f; margin-bottom: 0.2rem; display: block; }
+        #stats { font-size: 1.1rem; color: #fff; }
 
         @keyframes shake {
-            0% { transform: translateX(-0.6rem); }
-            50% { transform: translateX(0.6rem); }
+            0% { transform: translateX(-0.5rem); }
+            50% { transform: translateX(0.5rem); }
             100% { transform: translateX(0); }
         }
     </style>
@@ -91,7 +65,7 @@
 <body>
 
 <div id="ui">
-    <span id="target-display">ЗАГРУЗКА...</span>
+    <span id="target-display">...</span>
     <div id="stats">
         РАУНД: <span id="round-num">1</span> | 
         НУЖНО: <b id="needed">0</b> | 
@@ -125,7 +99,6 @@
 
     function createFallingWord() {
         if (!gameActive) return;
-        
         const round = rounds[currentRoundIdx];
         const el = document.createElement('div');
         el.className = 'word-item';
@@ -136,16 +109,15 @@
         
         container.appendChild(el);
 
-        // Расположение
         const wordWidth = el.offsetWidth;
         const maxX = window.innerWidth - wordWidth;
-        el.style.left = Math.max(5, Math.random() * maxX) + 'px';
-        el.style.top = '-10rem'; // Начало выше экрана в rem
+        el.style.left = Math.max(10, Math.random() * maxX) + 'px';
+        el.style.top = '-10rem';
 
-        let topPos = -160; // В пикселях для плавного шага анимации
+        let topPos = -150;
         const interval = setInterval(() => {
             if (!gameActive) return clearInterval(interval);
-            topPos += 2.5; 
+            topPos += 2.8; // Чуть быстрее для динамики
             el.style.top = topPos + 'px';
 
             if (topPos > window.innerHeight) {
@@ -182,7 +154,7 @@
         updateUI();
         if (lives <= 0) {
             gameActive = false;
-            alert("такого не былоо 😭");
+            alert("ТАКОГО НЕ БЫЛОО 😭");
             location.reload();
         }
     }
@@ -208,7 +180,7 @@
                 return;
             }
             createFallingWord();
-        }, 1500);
+        }, 1200);
     }
 
     startRound();
