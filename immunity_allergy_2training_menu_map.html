@@ -3,67 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flash Cards Simple</title>
+    <title>Dynamic Flash Cards</title>
     <style>
         body { 
             font-family: 'Segoe UI', sans-serif; 
-            background: #f8f9fa; 
-            margin: 0;
-            padding: 20px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-        }
-        
-        /* Верхняя секция: Текст и Картинка */
-        .header-content {
-            text-align: center;
-            max-width: 700px;
-            margin-bottom: 40px;
+            background: #f0f2f5; 
+            margin: 0; padding: 20px; 
+            display: flex; flex-direction: column; align-items: center; 
         }
 
-        .header-content img {
-            width: 100%;
-            max-width: 400px;
-            height: auto;
-            border-radius: 20px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
+        .header-content { text-align: center; max-width: 800px; margin-bottom: 30px; }
+        .header-content img { width: 100%; max-width: 350px; border-radius: 15px; margin-bottom: 15px; }
 
-        .header-content h1 { color: #333; margin: 0 0 10px 0; }
-        .header-content p { color: #666; font-size: 1.1rem; }
-
-        /* Сетка: 2 на ПК, 1 на телефоне */
+        /* Сетка: 8 на ПК, 4 на мобильных */
         .grid {
             display: grid;
-            gap: 20px;
-            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            grid-template-columns: repeat(8, 1fr);
             width: 100%;
-            max-width: 900px;
+            max-width: 1200px;
+            grid-auto-flow: dense; /* Умное заполнение пустот */
         }
 
-        @media (max-width: 600px) {
-            .grid { grid-template-columns: 1fr; }
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: repeat(4, 1fr); }
         }
 
-        /* Контейнер карточки */
+        /* Базовое состояние маленькой карточки */
         .card {
             perspective: 1000px;
-            height: 220px;
+            height: 100px; 
             cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        /* Состояние большой карточки при клике */
+        .card.is-active {
+            grid-column: span 2; /* Занимает 2 колонки */
+            grid-row: span 2;    /* Занимает 2 ряда */
+            height: 210px;       /* Увеличиваем высоту */
+            z-index: 10;
         }
 
         .card-inner {
             position: relative;
             width: 100%;
             height: 100%;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.6s;
             transform-style: preserve-3d;
         }
 
-        /* Класс для поворота */
-        .card.is-flipped .card-inner {
+        /* Переворот только когда карточка активна */
+        .card.is-active .card-inner {
             transform: rotateY(180deg);
         }
 
@@ -75,70 +66,93 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 16px;
-            padding: 25px;
+            border-radius: 8px;
+            padding: 10px;
             box-sizing: border-box;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             text-align: center;
-            font-size: 1.2rem;
-            font-weight: 500;
+            font-size: 0.8rem;
+            overflow: hidden;
         }
 
-        .card-front {
-            background: white;
-            color: #333;
-            border: 1px solid #eee;
+        .card-front { background: white; border: 1px solid #ddd; }
+        .card-back { 
+            background: #4A90E2; color: white; 
+            transform: rotateY(180deg); 
+            font-size: 1rem; /* Текст ответа чуть крупнее */
         }
 
-        .card-back {
-            background: #4A90E2;
-            color: white;
-            transform: rotateY(180deg);
-        }
+        .card.is-active .card-front { font-size: 1rem; }
     </style>
 </head>
 <body>
 
-    <!-- Текст и картинка над карточками -->
     <div class="header-content">
         <img src="https://images.unsplash.com" alt="Learning">
-        <h1>Тренажер знаний</h1>
-        <p>Нажимайте на карточки ниже, чтобы проверить свои ответы.</p>
+        <h1>Мини-карточки</h1>
+        <p>Нажми на маленькую карточку, чтобы увеличить её и увидеть ответ.</p>
     </div>
 
-    <div class="grid">
-        <!-- Карточка 1 -->
-        <div class="card" onclick="this.classList.toggle('is-flipped')">
+    <div class="grid" id="cardGrid">
+        <!-- Пример карточек (можно продублировать) -->
+        <div class="card" onclick="toggleCard(this)">
             <div class="card-inner">
-                <div class="card-front">Вопрос: Что такое семантика в HTML?</div>
-                <div class="card-back">Использование тегов, которые описывают смысл контента (например, article, nav, header).</div>
+                <div class="card-front">HTML</div>
+                <div class="card-back">Структура страницы</div>
             </div>
         </div>
-
-        <!-- Карточка 2 -->
-        <div class="card" onclick="this.classList.toggle('is-flipped')">
+        <div class="card" onclick="toggleCard(this)">
             <div class="card-inner">
-                <div class="card-front">Вопрос: Разница между margin и padding?</div>
-                <div class="card-back">Margin — внешний отступ, Padding — внутренний отступ элемента.</div>
+                <div class="card-front">CSS</div>
+                <div class="card-back">Стили и дизайн</div>
             </div>
         </div>
-
-        <!-- Карточка 3 -->
-        <div class="card" onclick="this.classList.toggle('is-flipped')">
+        <div class="card" onclick="toggleCard(this)">
             <div class="card-inner">
-                <div class="card-front">Вопрос: Для чего нужен тег alt у картинок?</div>
-                <div class="card-back">Для описания изображения, если оно не загрузилось, и для слабовидящих пользователей.</div>
+                <div class="card-front">JS</div>
+                <div class="card-back">Логика и скрипты</div>
             </div>
         </div>
-
-        <!-- Карточка 4 -->
-        <div class="card" onclick="this.classList.toggle('is-flipped')">
+        <div class="card" onclick="toggleCard(this)">
             <div class="card-inner">
-                <div class="card-front">Вопрос: Что делает свойство z-index?</div>
-                <div class="card-back">Определяет порядок наложения элементов друг на друга по оси Z.</div>
+                <div class="card-front">API</div>
+                <div class="card-back">Интерфейс программ</div>
+            </div>
+        </div>
+        <div class="card" onclick="toggleCard(this)">
+            <div class="card-inner">
+                <div class="card-front">DOM</div>
+                <div class="card-back">Дерево объектов</div>
+            </div>
+        </div>
+        <div class="card" onclick="toggleCard(this)">
+            <div class="card-inner">
+                <div class="card-front">Node.js</div>
+                <div class="card-back">Серверный JS</div>
+            </div>
+        </div>
+        <div class="card" onclick="toggleCard(this)">
+            <div class="card-inner">
+                <div class="card-front">SQL</div>
+                <div class="card-back">Базы данных</div>
+            </div>
+        </div>
+        <div class="card" onclick="toggleCard(this)">
+            <div class="card-inner">
+                <div class="card-front">Git</div>
+                <div class="card-back">Контроль версий</div>
             </div>
         </div>
     </div>
+
+    <script>
+        function toggleCard(card) {
+            // Если нужно, чтобы только одна карточка была открыта одновременно:
+            // document.querySelectorAll('.card').forEach(c => { if(c !== card) c.classList.remove('is-active'); });
+            
+            card.classList.toggle('is-active');
+        }
+    </script>
 
 </body>
 </html>
