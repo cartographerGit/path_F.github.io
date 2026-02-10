@@ -141,6 +141,20 @@ h1::after {
     background-color: #fcfcfc; /* Фон чуть-чуть изменится */
 }
 
+.back-button {
+      /* 1. Убираем синий цвет и подчеркивание */
+      color: #CC4E5C;          /* Ваш терракотовый цвет */
+      text-decoration: none;   /* Удаляет нижнее подчеркивание */
+  
+      /* 2. Меняем шрифт */
+      font-family: "Inter", sans-serif; /* Можно заменить на "Roboto", "Verdana" и др. */
+      font-size: 1rem;
+      font-weight: bold;
+  
+  /* 3. Добавляем немного стиля (по желанию) */
+  transition: 0.3s;        /* Плавная смена цвета при наведении */
+}
+
 
 /* 5. Футер */
 footer {
