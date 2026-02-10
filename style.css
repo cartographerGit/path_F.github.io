@@ -143,16 +143,14 @@ h1::after {
 
 .back-button {
       /* 1. Убираем синий цвет и подчеркивание */
-      color: #CC4E5C;          /* Ваш терракотовый цвет */
+      color: #ff9773ff;         
       text-decoration: none;   /* Удаляет нижнее подчеркивание */
   
       /* 2. Меняем шрифт */
-      font-family: "Inter", sans-serif; /* Можно заменить на "Roboto", "Verdana" и др. */
+      font-family: "Unbounded", sans-serif; 
       font-size: 1rem;
-      font-weight: bold;
-  
-  /* 3. Добавляем немного стиля (по желанию) */
-  transition: 0.3s;        /* Плавная смена цвета при наведении */
+      font-weight: lighter;
+      transition: 0.3s;        /* Плавная смена цвета при наведении */
 }
 
 
@@ -313,17 +311,15 @@ footer {
 
     .back-button {
       /* 1. Убираем синий цвет и подчеркивание */
-      color: #CC4E5C;          /* Ваш терракотовый цвет */
+      color: #ff9773ff;         
       text-decoration: none;   /* Удаляет нижнее подчеркивание */
   
       /* 2. Меняем шрифт */
-      font-family: "Inter", sans-serif; /* Можно заменить на "Roboto", "Verdana" и др. */
+      font-family: "Unbounded", sans-serif; 
       font-size: 1rem;
-      font-weight: bold;
-  
-  /* 3. Добавляем немного стиля (по желанию) */
-  transition: 0.3s;        /* Плавная смена цвета при наведении */
-}
+      font-weight: lighter;
+      transition: 0.3s;        /* Плавная смена цвета при наведении */
+    }
 
     /* 9. Футер (в один столбик) */
     footer {
