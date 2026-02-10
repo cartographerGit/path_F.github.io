@@ -297,6 +297,16 @@ footer {
         display: block;
     }
 
+        .back-button {
+      color: #CC4E5C;
+      text-decoration: none;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: bold;
+    }
+    .back-button:hover {
+      color: #FF9773;
+    }
+
     /* 9. Футер (в один столбик) */
     footer {
         padding: 2rem 1rem !important;
