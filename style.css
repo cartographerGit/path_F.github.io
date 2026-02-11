@@ -78,7 +78,7 @@ h1::after {
   
   /* Увеличиваем padding сверху и снизу, чтобы карточка стала выше */
   padding: 2rem 1rem; 
-  min-height: 10rem; /* Гарантирует высоту всей карточки */
+  min-height: 9rem; /* Гарантирует высоту всей карточки */
   
   border: 1px solid #e0e0e0;
   border-radius: 1rem;
