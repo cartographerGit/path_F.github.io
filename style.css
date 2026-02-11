@@ -90,7 +90,7 @@ h1::after {
 .icon-wrapper {
   flex: 0 0 35%; 
   /* 1. Задаем жесткий размер области для иконки */
-  height: 10rem;   /* Высота области иконки */
+  height: 12rem;   /* Высота области иконки */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -293,8 +293,8 @@ footer {
 
     .nav-icon {
         /* Увеличиваем саму иконку до 10rem (~160px) */
-        width: 11rem;
-        height: 7rem;
+        width: 12rem;
+        height: 9rem;
         object-fit: contain;
         /* Добавляем плавность для зума, если он настроен */
         transition: transform 0.3s ease;
