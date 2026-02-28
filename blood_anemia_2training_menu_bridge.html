@@ -1,52 +1,159 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <meta charset="UTF-8">
+    <title>Bridge Builder Quiz</title>
+    <!-- Подключаем библиотеку p5.js для графики -->
     <script src="https://cdnjs.cloudflare.com"></script>
+    <style>
+        body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #222; overflow: hidden; font-family: sans-serif; }
+        canvas { border: 2px solid #555; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+    </style>
 </head>
 <body>
-    <script>
-        let round = 1, lives = 5;
-        let correctIdx, pieces = [];
 
-        function setup() {
-            createCanvas(600, 400);
-            nextRound();
+<script>
+    let round = 1;
+    let lives = 5;
+    let correctPieceIndex;
+    let pieces = [];
+    let bridgeBlocks = []; // Сохраненные блоки построенного моста
+    let shakeAmount = 0;   // Для анимации тряски
+    let errorColor = false;
+    let gameOver = false;
+
+    function setup() {
+        createCanvas(800, 500);
+        nextRound();
+    }
+
+    function nextRound() {
+        if (round > 10 || lives <= 0) {
+            gameOver = true;
+            return;
+        }
+        
+        correctPieceIndex = Math.floor(random(5));
+        pieces = [];
+        
+        // Создаем 5 деталей с уникальными формами (как в Java-коде)
+        for (let i = 0; i < 5; i++) {
+            pieces.push({
+                w: 50 + (i * 12), 
+                h: 70 - (i * 8),
+                x: 60 + (i * 140),
+                y: 350
+            });
+        }
+    }
+
+    function draw() {
+        background(34, 34, 34);
+
+        // Интерфейс
+        fill(255);
+        textSize(22);
+        textAlign(LEFT);
+        text(`Раунд: ${round}/10`, 30, 40);
+        textAlign(RIGHT);
+        text(`Жизни: ${"❤️".repeat(lives)}`, width - 30, 40);
+
+        if (gameOver) {
+            drawGameOver();
+            return;
         }
 
-        function nextRound() {
-            correctIdx = Math.floor(random(5));
-            pieces = [];
-            for (let i = 0; i < 5; i++) {
-                pieces.push({ w: 40 + i * 10, h: 50 - i * 5, x: 50 + i * 100 });
-            }
+        // Рисуем пропасть и начальную платформу
+        fill(60);
+        rect(0, 200, 50, 20); // Начало моста
+
+        // Рисуем уже построенные блоки моста
+        fill(255, 215, 0); // Золотой цвет
+        for (let block of bridgeBlocks) {
+            rect(block.x, 200, 45, 20);
         }
 
-        function draw() {
-            background(51);
-            fill(255);
-            text(`Раунд: ${round}/10  Жизни: ${"❤️".repeat(lives)}`, 20, 30);
+        // Подсказка, какую форму искать
+        fill(200);
+        textSize(16);
+        textAlign(CENTER);
+        text("НУЖНА ДЕТАЛЬ ЭТОЙ ФОРМЫ:", width/2, 100);
+        
+        // Рисуем "цель" (правильную форму) в рамке
+        noFill();
+        stroke(255, 100);
+        rect(width/2 - 40, 115, 80, 70);
+        noStroke();
+        fill(173, 216, 230);
+        let target = pieces[correctPieceIndex];
+        rect(width/2 - target.w/2, 150 - target.h/2 + 20, target.w, target.h);
+
+        // Рисуем 5 вариантов выбора
+        for (let i = 0; i < pieces.length; i++) {
+            let p = pieces[i];
             
-            // Рисуем варианты деталей
-            for (let i = 0; i < pieces.length; i++) {
-                fill(i === correctIdx ? '#add8e6' : '#87ceeb'); // Визуально они похожи
-                rect(pieces[i].x, 300, pieces[i].w, pieces[i].h);
-            }
+            // Если была ошибка, трясем детали
+            let offsetX = (errorColor) ? random(-shakeAmount, shakeAmount) : 0;
+            
+            fill(errorColor ? color(255, 0, 0) : color(100, 180, 255));
+            rect(p.x + offsetX, p.y, p.w, p.h, 5);
+            
+            fill(255);
+            textAlign(CENTER);
+            text(i + 1, p.x + p.w/2, p.y + p.h + 25);
         }
+    }
 
-        function mousePressed() {
-            for (let i = 0; i < pieces.length; i++) {
-                if (mouseX > pieces[i].x && mouseX < pieces[i].x + pieces[i].w &&
-                    mouseY > 300 && mouseY < 300 + pieces[i].h) {
-                    if (i === correctIdx) {
-                        round++;
-                        nextRound();
-                    } else {
-                        lives--;
-                        if (lives <= 0) alert("Game Over");
-                    }
-                }
+    function mousePressed() {
+        if (gameOver) return;
+
+        for (let i = 0; i < pieces.length; i++) {
+            let p = pieces[i];
+            if (mouseX > p.x && mouseX < p.x + p.w && mouseY > p.y && mouseY < p.y + p.h) {
+                checkChoice(i);
             }
         }
-    </script>
+    }
+
+    function checkChoice(index) {
+        if (index === correctPieceIndex) {
+            // Успех
+            bridgeBlocks.push({ x: 50 + (round - 1) * 48 });
+            round++;
+            nextRound();
+        } else {
+            // Ошибка: запускаем анимацию
+            lives--;
+            triggerErrorEffect();
+            if (lives <= 0) gameOver = true;
+        }
+    }
+
+    function triggerErrorEffect() {
+        errorColor = true;
+        shakeAmount = 10;
+        setTimeout(() => {
+            errorColor = false;
+            shakeAmount = 0;
+        }, 500); // Эффект на полсекунды
+    }
+
+    function drawGameOver() {
+        fill(255);
+        textAlign(CENTER);
+        textSize(40);
+        if (lives <= 0) {
+            text("ИГРА ОКОНЧЕНА 💀", width/2, height/2);
+            textSize(20);
+            text("Вы не достроили мост...", width/2, height/2 + 50);
+        } else {
+            text("ПОБЕДА! 🎉", width/2, height/2);
+            textSize(20);
+            text("Мост успешно построен!", width/2, height/2 + 50);
+        }
+        text("Обновите страницу, чтобы начать заново", width/2, height - 50);
+    }
+</script>
+
 </body>
 </html>
