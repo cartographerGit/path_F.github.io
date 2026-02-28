@@ -2,137 +2,161 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Pipeline Quiz Connect</title>
+    <title>Directional Pipe Quiz</title>
     <style>
         body { background: #1a1a1a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; }
-        #ui { width: 600px; text-align: center; margin-top: 20px; }
-        canvas { background: #000; border: 4px solid #333; border-radius: 10px; margin: 20px 0; }
-        .controls { display: flex; justify-content: space-around; width: 100%; }
-        button { 
-            padding: 15px 25px; font-size: 18px; cursor: pointer; border: none; 
-            border-radius: 5px; background: #00d4ff; color: #000; font-weight: bold;
+        #game-container { position: relative; margin-top: 20px; }
+        canvas { background: #000; border: 3px solid #444; border-radius: 8px; }
+        .ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .answer-btn { 
+            position: absolute; pointer-events: auto; padding: 8px 15px; 
+            background: rgba(0, 212, 255, 0.2); border: 1px solid #00d4ff; 
+            color: #fff; cursor: pointer; border-radius: 4px; font-size: 14px;
             transition: 0.2s;
         }
-        button:hover { background: #fff; transform: scale(1.05); }
-        .timer-container { width: 100%; height: 10px; background: #333; border-radius: 5px; margin-bottom: 10px; }
-        #timer-bar { width: 100%; height: 100%; background: #ff4444; }
-        #question { font-size: 22px; height: 50px; color: #ffcc00; }
+        .answer-btn:hover { background: #00d4ff; color: #000; }
+        .info { text-align: center; width: 800px; }
+        #timer-bar { width: 100%; height: 10px; background: #333; margin: 10px 0; }
+        #timer-fill { width: 100%; height: 100%; background: #ff4444; }
+        #question { font-size: 20px; color: #ffcc00; height: 40px; }
     </style>
 </head>
 <body>
 
-    <div id="ui">
-        <div id="question">Загрузка...</div>
-        <div class="timer-container"><div id="timer-bar"></div></div>
-        <canvas id="game" width="600" height="400"></canvas>
-        <div class="controls">
-            <button id="btn-up" onclick="handleAnswer('up')">Вариант А</button>
-            <button id="btn-down" onclick="handleAnswer('down')">Вариант Б</button>
-        </div>
+    <div class="info">
+        <div id="question">Подготовьтесь к запуску...</div>
+        <div id="timer-bar"><div id="timer-fill"></div></div>
+    </div>
+
+    <div id="game-container">
+        <canvas id="pipeCanvas" width="800" height="600"></canvas>
+        <div id="ui" class="ui-layer"></div>
     </div>
 
 <script>
-const canvas = document.getElementById('game');
+const canvas = document.getElementById('pipeCanvas');
 const ctx = canvas.getContext('2d');
+const ui = document.getElementById('ui');
 
-const quiz = [
-    { q: "Земля круглая?", up: "Да (Верно)", down: "Нет (Ложь)", correct: "up" },
-    { q: "2 + 2 = ?", up: "5", down: "4 (Верно)", correct: "down" },
-    { q: "Столица РФ?", up: "Москва (Верно)", down: "Питер", correct: "up" },
-    { q: "HTML это...", up: "Разметка (Верно)", down: "Стиль", correct: "up" },
-    { q: "В байте сколько бит?", up: "10", down: "8 (Верно)", correct: "down" }
+// Данные квиза (7 этапов)
+const quizSteps = [
+    { q: "1. Процессор - это 'мозг'?", ans1: "Да", ans2: "Нет", correct: "ans1", type: "up-down" },
+    { q: "2. RAM - это память?", ans1: "Постоянная", ans2: "Временная", correct: "ans2", type: "left-right" },
+    { q: "3. Веб-браузер?", ans1: "Chrome", ans2: "Windows", correct: "ans1", type: "up-down" },
+    { q: "4. Алгоритм - это?", ans1: "Стихи", ans2: "Инструкция", correct: "ans2", type: "left-right" },
+    { q: "5. Python - это?", ans1: "Змея", ans2: "Язык программирования", correct: "ans2", type: "up-down" },
+    { q: "6. Файл .jpg - это?", ans1: "Картинка", ans2: "Текст", correct: "ans1", type: "left-right" },
+    { q: "7. Финал: 1024 КБ это?", ans1: "1 МБ", ans2: "1 ГБ", correct: "ans1", type: "up-down" }
 ];
 
-let currentLevel = 0;
+let level = 0;
 let timeLeft = 15;
 let isGameOver = false;
-let pipeChain = []; // Массив отрисованных сегментов
+let pipes = []; 
+let currentChoice = null; // Выбранное игроком направление ('ans1' или 'ans2')
 
-// Инициализация
 function init() {
-    // Первый сегмент - всегда прямой, заполнен водой
-    pipeChain.push({ x: 0, y: 200, type: 'straight', filled: true });
-    updateUI();
-    gameLoop();
+    // 1. Первый сегмент: Прямой, всегда залит
+    pipes.push({ x1: 50, y1: 300, x2: 150, y2: 300, filled: true });
+    startLevel();
+    requestAnimationFrame(gameLoop);
 }
 
-function updateUI() {
-    if (currentLevel < quiz.length) {
-        const q = quiz[currentLevel];
-        document.getElementById('question').innerText = q.q;
-        document.getElementById('btn-up').innerText = q.up;
-        document.getElementById('btn-down').innerText = q.down;
-    } else {
-        winGame();
+function startLevel() {
+    if (level >= quizSteps.length) {
+        isGameOver = true;
+        document.getElementById('question').innerText = "🏆 ПОБЕДА! СИСТЕМА ПОЛНОСТЬЮ ГЕРМЕТИЧНА!";
+        return;
     }
+    
+    timeLeft = 15;
+    currentChoice = null;
+    const step = quizSteps[level];
+    document.getElementById('question').innerText = step.q;
+    
+    // Создаем кнопки
+    ui.innerHTML = '';
+    const last = pipes[pipes.length - 1];
+    
+    createButton(step.ans1, 'ans1', last.x2, last.y2, step.type);
+    createButton(step.ans2, 'ans2', last.x2, last.y2, step.type);
 }
 
-function handleAnswer(choice) {
-    if (isGameOver) return;
-
-    const q = quiz[currentLevel];
-    const lastPipe = pipeChain[pipeChain.length - 1];
-
-    if (choice === q.correct) {
-        // Добавляем новый угловой сегмент, который соединяется с предыдущим
-        // Направление изгиба зависит от ответа (для красоты рисуем "колено")
-        const newPipe = {
-            x: lastPipe.x + 80,
-            y: lastPipe.y,
-            type: 'angle',
-            direction: choice, // 'up' или 'down'
-            filled: true
-        };
-        
-        pipeChain.push(newPipe);
-        currentLevel++;
-        timeLeft = 15; // Сброс таймера
-        updateUI();
+function createButton(text, id, x, y, type) {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.innerText = text;
+    
+    // Позиционирование кнопок относительно конца последней трубы
+    if (type === 'up-down') {
+        btn.style.left = (x + 20) + 'px';
+        btn.style.top = (id === 'ans1' ? y - 80 : y + 60) + 'px';
     } else {
-        endGame("ОШИБКА! ТРУБА ТРЕСНУЛА!");
+        btn.style.top = (y - 60) + 'px';
+        btn.style.left = (id === 'ans1' ? x - 80 : x + 80) + 'px';
+    }
+    
+    btn.onclick = () => selectAnswer(id);
+    ui.appendChild(btn);
+}
+
+function selectAnswer(id) {
+    currentChoice = id;
+    const step = quizSteps[level];
+    
+    if (id === step.correct) {
+        const last = pipes[pipes.length - 1];
+        let newPipe;
+        
+        // Логика построения следующего колена
+        if (step.type === 'up-down') {
+            const targetY = (id === 'ans1') ? last.y2 - 100 : last.y2 + 100;
+            newPipe = { x1: last.x2, y1: last.y2, xm: last.x2 + 50, ym: last.y2, x2: last.x2 + 50, y2: targetY, filled: true };
+        } else {
+            const targetX = (id === 'ans1') ? last.x2 - 100 : last.x2 + 100;
+            newPipe = { x1: last.x2, y1: last.y2, xm: last.x2, ym: last.y2 - 50, x2: targetX, y2: last.y2 - 50, filled: true };
+        }
+        
+        pipes.push(newPipe);
+        level++;
+        startLevel();
+    } else {
+        endGame("ОШИБКА! ДАВЛЕНИЕ РАЗРУШИЛО ТРУБУ!");
     }
 }
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
 
-    pipeChain.forEach((p, i) => {
-        ctx.lineWidth = 30;
-        ctx.lineJoin = "round";
-        ctx.lineCap = "round";
-        ctx.strokeStyle = p.filled ? "#00d4ff" : "#444";
-
+    pipes.forEach((p, i) => {
         ctx.beginPath();
-        if (p.type === 'straight') {
-            // Прямая труба ---
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p.x + 80, p.y);
-        } else if (p.type === 'angle') {
-            // Угловая труба L-образная
-            // Соединяется с концом предыдущей (p.x, p.y)
-            ctx.moveTo(p.x, p.y); 
-            ctx.lineTo(p.x + 40, p.y); // Горизонтальный кусок
-            if (p.direction === 'up') {
-                ctx.lineTo(p.x + 40, p.y - 40); // Уходит вверх
-            } else {
-                ctx.lineTo(p.x + 40, p.y + 40); // Уходит вниз
-            }
+        ctx.lineWidth = 25;
+        ctx.strokeStyle = p.filled ? "#00d4ff" : "#444";
+        
+        ctx.moveTo(p.x1, p.y1);
+        if (p.xm) { // Если это колено (угловой сегмент)
+            ctx.lineTo(p.xm, p.ym);
+            ctx.lineTo(p.x2, p.y2);
+        } else { // Прямой сегмент
+            ctx.lineTo(p.x2, p.y2);
         }
         ctx.stroke();
 
-        // Рисуем фланец (стык)
-        ctx.fillStyle = "#666";
-        ctx.fillRect(p.x - 5, p.y - 20, 10, 40);
+        // Отрисовка фланца (стыка)
+        ctx.fillStyle = "#555";
+        ctx.fillRect(p.x2 - 5, p.y2 - 15, 10, 30);
     });
 }
 
 function gameLoop() {
     if (!isGameOver) {
         draw();
-        timeLeft -= 0.02;
-        document.getElementById('timer-bar').style.width = (timeLeft / 15 * 100) + "%";
-
-        if (timeLeft <= 0) endGame("ДАВЛЕНИЕ ПРЕВЫШЕНО! ВЗРЫВ!");
+        timeLeft -= 0.016;
+        document.getElementById('timer-fill').style.width = (timeLeft / 15 * 100) + "%";
+        
+        if (timeLeft <= 0) endGame("ВЗРЫВ! ВРЕМЯ ВЫШЛО!");
         requestAnimationFrame(gameLoop);
     }
 }
@@ -141,12 +165,7 @@ function endGame(msg) {
     isGameOver = true;
     document.getElementById('question').innerText = msg;
     document.getElementById('question').style.color = "#ff4444";
-}
-
-function winGame() {
-    isGameOver = true;
-    document.getElementById('question').innerText = "🏆 СИСТЕМА ПОСТРОЕНА! ПОБЕДА!";
-    document.getElementById('question').style.color = "#00ff00";
+    ui.innerHTML = '';
 }
 
 init();
