@@ -2,35 +2,35 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Pressure Pipe Master</title>
+    <title>Fixed Pipeline Quiz</title>
     <style>
-        body { background: #111; color: #eee; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; overflow: hidden; }
-        #stats { display: flex; justify-content: space-between; width: 800px; margin-top: 20px; font-size: 18px; }
-        .lives { color: #ff4444; font-weight: bold; }
-        #question-box { width: 800px; text-align: center; margin: 15px 0; min-height: 60px; }
-        #question { font-size: 24px; color: #ffcc00; margin-bottom: 10px; }
-        #timer-container { width: 800px; height: 8px; background: #333; border-radius: 4px; }
-        #timer-bar { width: 100%; height: 100%; background: #00d4ff; transition: width 0.1s linear; }
-        #game-container { position: relative; margin-top: 20px; }
-        canvas { background: #050505; border: 2px solid #333; border-radius: 10px; }
+        body { background: #111; color: #eee; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; }
+        #stats { display: flex; justify-content: space-between; width: 800px; margin-top: 10px; font-size: 18px; color: #00d4ff; }
+        #question-box { width: 800px; text-align: center; margin: 10px 0; }
+        #question { font-size: 22px; color: #ffcc00; min-height: 50px; }
+        #timer-container { width: 800px; height: 6px; background: #333; }
+        #timer-bar { width: 100%; height: 100%; background: #ff4444; }
+        #game-container { position: relative; margin-top: 10px; border: 4px solid #333; line-height: 0; }
+        canvas { background: #050505; }
         .btn-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
         .ans-btn { 
-            position: absolute; pointer-events: auto; padding: 10px 20px; 
-            background: #222; border: 2px solid #444; color: #fff; 
+            position: absolute; pointer-events: auto; padding: 10px 15px; 
+            background: #222; border: 2px solid #00d4ff; color: #fff; 
             cursor: pointer; border-radius: 5px; font-weight: bold; transform: translate(-50%, -50%);
+            white-space: nowrap; z-index: 10;
         }
-        .ans-btn:hover { background: #444; border-color: #00d4ff; }
+        .ans-btn:hover { background: #00d4ff; color: #000; }
     </style>
 </head>
 <body>
 
     <div id="stats">
-        <div>Уровень: <span id="lvl-num">1</span>/7</div>
-        <div class="lives">Жизни: <span id="lives-count">7</span></div>
+        <div>Этап: <span id="lvl-num">1</span>/7</div>
+        <div>Жизни: <span id="lives-count">5</span></div>
     </div>
 
     <div id="question-box">
-        <div id="question">Подключение к системе...</div>
+        <div id="question">Запуск...</div>
         <div id="timer-container"><div id="timer-bar"></div></div>
     </div>
 
@@ -45,26 +45,28 @@ const ctx = canvas.getContext('2d');
 const btnLayer = document.getElementById('buttons');
 
 const quiz = [
-    { q: "2 + 2 * 2 = ?", a1: "6", a2: "8", corr: "a1", type: "v" },
-    { q: "Столица Японии?", a1: "Киото", a2: "Токио", corr: "a2", type: "h" },
-    { q: "Процессор - это...", a1: "Мозг", a2: "Память", corr: "a1", type: "v" },
-    { q: "JS расшифровывается как?", a1: "J-Script", a2: "JavaScript", corr: "a2", type: "h" },
-    { q: "Корень из 81?", a1: "9", a2: "7", corr: "a1", type: "v" },
-    { q: "Цвет чистого неба?", a1: "Синий", a2: "Зеленый", corr: "a1", type: "h" },
-    { q: "1000м в 1км?", a1: "Да", a2: "Нет", corr: "a1", type: "v" }
+    { q: "2 + 2 * 2 = ?", a1: "6", a2: "8", corr: "a1" },
+    { q: "Столица Франции?", a1: "Лондон", a2: "Париж", corr: "a2" },
+    { q: "HTML это язык...", a1: "Разметки", a2: "Программирования", corr: "a1" },
+    { q: "CSS отвечает за...", a1: "Логику", a2: "Стиль", corr: "a2" },
+    { q: "Корень из 100?", a1: "10", a2: "20", corr: "a1" },
+    { q: "JS файл имеет расширение?", a1: ".js", a2: ".java", corr: "a1" },
+    { q: "ФИНАЛ: 1 байт это...", a1: "8 бит", a2: "10 бит", corr: "a1" }
 ];
 
 let state = {
-    lvl: 0,
-    lives: 7,
-    time: 15,
-    isOver: false,
-    pipes: [] // {x1, y1, x2, y2, xm, ym, filled, targetDir}
+    lvl: 0, lives: 5, time: 15, isOver: false,
+    pipes: [], 
+    currentDir: 'right' // Куда смотрит выход последней трубы
 };
 
+const STEP = 80; // Длина сегмента
+
 function init() {
-    // Начальный залитый сегмент
-    state.pipes.push({ x1: 20, y1: 250, x2: 100, y2: 250, filled: true });
+    // Начальная точка в левой части экрана
+    const startX = 50, startY = 250;
+    state.pipes.push({ x1: startX, y1: startY, x2: startX + STEP, y2: startY, filled: true, type: 'straight' });
+    state.currentDir = 'right';
     nextStep();
     requestAnimationFrame(loop);
 }
@@ -72,27 +74,57 @@ function init() {
 function nextStep() {
     if (state.lvl >= quiz.length) {
         state.isOver = true;
-        document.getElementById('question').innerText = "🏆 ПОБЕДА! ДАВЛЕНИЕ В НОРМЕ!";
+        document.getElementById('question').innerText = "🏆 ПОБЕДА! СИСТЕМА ГЕРМЕТИЧНА!";
         return;
     }
 
-    const q = quiz[state.lvl];
     const last = state.pipes[state.pipes.length - 1];
+    const q = quiz[state.lvl];
     
-    // Создаем "пустой" сегмент (предпросмотр) в рандомном положении
-    const isUp = Math.random() > 0.5;
-    const isLeft = Math.random() > 0.5;
-
-    let nextP;
-    if (q.type === 'v') {
-        nextP = { x1: last.x2, y1: last.y2, xm: last.x2 + 40, ym: last.y2, x2: last.x2 + 40, y2: isUp ? last.y2 - 80 : last.y2 + 80, filled: false, currentDir: isUp ? 'a1' : 'a2' };
+    // Определяем возможные направления (90 градусов от текущего)
+    let directions = [];
+    if (state.currentDir === 'right' || state.currentDir === 'left') {
+        directions = ['up', 'down'];
     } else {
-        nextP = { x1: last.x2, y1: last.y2, xm: last.x2, ym: last.y2 - 40, x2: isLeft ? last.x2 - 80 : last.x2 + 80, y2: last.y2 - 40, filled: false, currentDir: isLeft ? 'a1' : 'a2' };
+        directions = ['left', 'right'];
     }
+
+    // --- ПРОВЕРКА ГРАНИЦ (Safety) ---
+    // Если труба слишком близко к краю, убираем это направление
+    const margin = 100;
+    if (last.y2 < margin) directions = directions.filter(d => d !== 'up');
+    if (last.y2 > canvas.height - margin) directions = directions.filter(d => d !== 'down');
+    if (last.x2 > canvas.width - margin) directions = directions.filter(d => d !== 'right');
+    if (last.x2 < margin) directions = directions.filter(d => d !== 'left');
+    
+    // Если после фильтрации пусто (мало ли), принудительно в центр
+    if (directions.length === 0) directions = [last.y2 > canvas.height/2 ? 'up' : 'down'];
+
+    // Рандомно выбираем, какой ответ куда ведет
+    const shuffle = Math.random() > 0.5;
+    const dirA1 = shuffle ? directions[0] : (directions[1] || directions[0]);
+    const dirA2 = shuffle ? (directions[1] || directions[0]) : directions[0];
+
+    // Создаем визуальный сегмент (предпросмотр)
+    // По умолчанию ставим его в сторону правильного ответа (или случайно)
+    const previewDir = (Math.random() > 0.5) ? dirA1 : dirA2;
+    const nextP = createPipeData(last.x2, last.y2, previewDir);
+    nextP.dirA1 = dirA1;
+    nextP.dirA2 = dirA2;
     
     state.pipes.push(nextP);
     state.time = 15;
     renderUI(q, nextP);
+}
+
+function createPipeData(x, y, dir) {
+    let x2 = x, y2 = y;
+    if (dir === 'up') y2 -= STEP;
+    else if (dir === 'down') y2 += STEP;
+    else if (dir === 'left') x2 -= STEP;
+    else if (dir === 'right') x2 += STEP;
+
+    return { x1: x, y1: y, x2: x2, y2: y2, filled: false, dir: dir };
 }
 
 function renderUI(q, p) {
@@ -100,74 +132,74 @@ function renderUI(q, p) {
     document.getElementById('lvl-num').innerText = state.lvl + 1;
     btnLayer.innerHTML = '';
 
-    // Размещаем кнопки у концов трубы
-    const b1 = createBtn(q.a1, 'a1', p);
-    const b2 = createBtn(q.a2, 'a2', p);
-    btnLayer.appendChild(b1);
-    btnLayer.appendChild(b2);
+    // Размещаем кнопки чуть дальше концов предполагаемых труб
+    createBtn(q.a1, 'a1', p, p.dirA1);
+    createBtn(q.a2, 'a2', p, p.dirA2);
 }
 
-function createBtn(text, id, p) {
+function createBtn(text, id, p, dir) {
     const b = document.createElement('button');
     b.className = 'ans-btn';
     b.innerText = text;
     
-    if (quiz[state.lvl].type === 'v') {
-        b.style.left = (p.x2 + 60) + 'px';
-        b.style.top = (id === 'a1' ? p.y1 - 60 : p.y1 + 100) + 'px';
-    } else {
-        b.style.top = (p.y2 - 60) + 'px';
-        b.style.left = (id === 'a1' ? p.x1 - 40 : p.x1 + 120) + 'px';
-    }
+    let offset = 60;
+    let bx = p.x1, by = p.y1;
+    if (dir === 'up') by -= offset;
+    else if (dir === 'down') by += offset;
+    else if (dir === 'left') bx -= offset;
+    else if (dir === 'right') bx += offset;
 
+    b.style.left = bx + 'px';
+    b.style.top = by + 'px';
     b.onclick = () => check(id);
-    return b;
+    btnLayer.appendChild(b);
 }
 
 function check(choice) {
     const q = quiz[state.lvl];
-    const currentPipe = state.pipes[state.pipes.length - 1];
+    const p = state.pipes[state.pipes.length - 1];
 
     if (choice === q.corr) {
-        // Поворачиваем трубу к правильному ответу и заливаем
-        if (choice !== currentPipe.currentDir) {
-            currentPipe.y2 = currentPipe.y1 + (currentPipe.y1 - currentPipe.y2); // flip vertical
-            currentPipe.x2 = currentPipe.x1 + (currentPipe.x1 - currentPipe.x2); // flip horizontal
-        }
-        currentPipe.filled = true;
+        // Поворачиваем трубу в сторону выбранного (верного) ответа
+        const correctDir = (choice === 'a1') ? p.dirA1 : p.dirA2;
+        const finalP = createPipeData(p.x1, p.y1, correctDir);
+        
+        state.pipes[state.pipes.length - 1] = { ...finalP, filled: true };
+        state.currentDir = correctDir;
         state.lvl++;
         nextStep();
     } else {
         state.lives--;
         document.getElementById('lives-count').innerText = state.lives;
-        if (state.lives <= 0) die("СИСТЕМА РАЗРУШЕНА!");
+        if (state.lives <= 0) endGame("ТРУБЫ РАЗОРВАНЫ!");
     }
-}
-
-function die(msg) {
-    state.isOver = true;
-    document.getElementById('question').innerText = msg;
-    document.getElementById('question').style.color = "#ff4444";
-    btnLayer.innerHTML = '';
 }
 
 function loop() {
     if (state.isOver) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Рисуем сетку (опционально, для красоты)
+    ctx.strokeStyle = "#111";
+    ctx.lineWidth = 1;
+    for(let i=0; i<800; i+=20) { ctx.moveTo(i,0); ctx.lineTo(i,600); }
+    ctx.stroke();
+
     state.pipes.forEach(p => {
         ctx.beginPath();
-        ctx.lineWidth = 20;
-        ctx.lineJoin = "round";
-        ctx.strokeStyle = p.filled ? "#00d4ff" : "#333";
+        ctx.lineWidth = 24;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = p.filled ? "#00d4ff" : "#222";
         ctx.moveTo(p.x1, p.y1);
-        if (p.xm) ctx.lineTo(p.xm, p.ym);
         ctx.lineTo(p.x2, p.y2);
         ctx.stroke();
         
         // Стык
-        ctx.fillStyle = "#555";
-        ctx.fillRect(p.x2 - 4, p.y2 - 10, 8, 20);
+        ctx.fillStyle = p.filled ? "#00d4ff" : "#444";
+        ctx.beginPath();
+        ctx.arc(p.x2, p.y2, 5, 0, Math.PI*2);
+        ctx.fill();
     });
 
     state.time -= 0.016;
@@ -175,11 +207,17 @@ function loop() {
     if (state.time <= 0) {
         state.lives--;
         document.getElementById('lives-count').innerText = state.lives;
-        if (state.lives <= 0) die("ВРЕМЯ ВЫШЛО!");
-        else state.time = 15;
+        state.time = 15;
+        if (state.lives <= 0) endGame("ВРЕМЯ ВЫШЛО!");
     }
-
     requestAnimationFrame(loop);
+}
+
+function endGame(msg) {
+    state.isOver = true;
+    document.getElementById('question').innerText = msg;
+    document.getElementById('question').style.color = "#ff4444";
+    btnLayer.innerHTML = '';
 }
 
 init();
