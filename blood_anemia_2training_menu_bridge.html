@@ -1,106 +1,52 @@
-import javafx.animation.*;
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.stage.Stage;
-import javafx.util.Duration;
-import java.util.Random;
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdnjs.cloudflare.com"></script>
+</head>
+<body>
+    <script>
+        let round = 1, lives = 5;
+        let correctIdx, pieces = [];
 
-public class BridgeBuilderGame extends Application {
-    private int round = 1;
-    private int lives = 5;
-    private int correctPieceIndex;
-    private Label statusLabel = new Label();
-    private HBox optionsBox = new HBox(15);
-    private Pane bridgeArea = new Pane();
-    private Random random = new Random();
-
-    @Override
-    public void start(Stage stage) {
-        VBox root = new VBox(20);
-        root.setStyle("-fx-padding: 20; -fx-alignment: center; -fx-background-color: #333;");
-
-        statusLabel.setTextFill(Color.WHITE);
-        updateStatus();
-
-        // Область моста (визуализация прогресса)
-        bridgeArea.setPrefHeight(100);
-        bridgeArea.setStyle("-fx-border-color: white; -fx-border-width: 0 0 2 0;");
-
-        nextRound();
-
-        root.getChildren().addAll(statusLabel, bridgeArea, new Label("Выберите нужную деталь:"), optionsBox);
-        Scene scene = new Scene(root, 600, 400);
-        stage.setTitle("Java Bridge Builder Quiz");
-        stage.setScene(scene);
-        stage.show();
-    }
-
-    private void nextRound() {
-        if (round > 10 || lives <= 0) {
-            statusLabel.setText(lives <= 0 ? "ИГРА ОКОНЧЕНА! ВЫ УПАЛИ." : "ПОБЕДА! МОСТ ПОСТРОЕН!");
-            optionsBox.setDisable(true);
-            return;
-        }
-
-        optionsBox.getChildren().clear();
-        correctPieceIndex = random.nextInt(5);
-
-        for (int i = 0; i < 5; i++) {
-            Rectangle piece = createPiece(i);
-            int finalI = i;
-            piece.setOnMouseClicked(e -> handleChoice(finalI, piece));
-            optionsBox.getChildren().add(piece);
-        }
-        updateStatus();
-    }
-
-    private Rectangle createPiece(int index) {
-        // Создаем разные формы (разная ширина/высота для имитации пазла)
-        double width = 40 + (index * 10); 
-        double height = 60 - (index * 5);
-        Rectangle rect = new Rectangle(width, height, Color.LIGHTBLUE);
-        rect.setStroke(Color.WHITE);
-        return rect;
-    }
-
-    private void handleChoice(int index, Rectangle piece) {
-        if (index == correctPieceIndex) {
-            // Успех: Добавляем блок на мост
-            Rectangle buildBlock = new Rectangle(40, 30, Color.GOLD);
-            buildBlock.setX((round - 1) * 45);
-            buildBlock.setY(50);
-            bridgeArea.getChildren().add(buildBlock);
-            
-            round++;
+        function setup() {
+            createCanvas(600, 400);
             nextRound();
-        } else {
-            // Ошибка: Тряска и уменьшение жизней
-            lives--;
-            playErrorAnimation(piece);
-            updateStatus();
-            if (lives <= 0) nextRound();
         }
-    }
 
-    private void playErrorAnimation(Rectangle node) {
-        TranslateTransition tt = new TranslateTransition(Duration.millis(50), node);
-        tt.setFromX(-5);
-        tt.setToX(5);
-        tt.setCycleCount(6);
-        tt.setAutoReverse(true);
-        node.setFill(Color.RED);
-        tt.setOnFinished(e -> node.setFill(Color.LIGHTBLUE));
-        tt.play();
-    }
+        function nextRound() {
+            correctIdx = Math.floor(random(5));
+            pieces = [];
+            for (let i = 0; i < 5; i++) {
+                pieces.push({ w: 40 + i * 10, h: 50 - i * 5, x: 50 + i * 100 });
+            }
+        }
 
-    private void updateStatus() {
-        statusLabel.setText("Раунд: " + round + "/10 | Жизни: " + "❤️".repeat(Math.max(0, lives)));
-    }
+        function draw() {
+            background(51);
+            fill(255);
+            text(`Раунд: ${round}/10  Жизни: ${"❤️".repeat(lives)}`, 20, 30);
+            
+            // Рисуем варианты деталей
+            for (let i = 0; i < pieces.length; i++) {
+                fill(i === correctIdx ? '#add8e6' : '#87ceeb'); // Визуально они похожи
+                rect(pieces[i].x, 300, pieces[i].w, pieces[i].h);
+            }
+        }
 
-    public static void main(String[] args) { launch(args); }
-}
-
+        function mousePressed() {
+            for (let i = 0; i < pieces.length; i++) {
+                if (mouseX > pieces[i].x && mouseX < pieces[i].x + pieces[i].w &&
+                    mouseY > 300 && mouseY < 300 + pieces[i].h) {
+                    if (i === correctIdx) {
+                        round++;
+                        nextRound();
+                    } else {
+                        lives--;
+                        if (lives <= 0) alert("Game Over");
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
