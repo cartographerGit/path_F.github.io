@@ -2,128 +2,158 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Mixing Quiz: Pipeline</title>
+    <title>Pressure Plumbing Quiz</title>
     <style>
-        body { background: #1a1a1a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; }
-        .header { text-align: center; margin-top: 20px; }
-        canvas { border: 2px solid #555; background: #000; border-radius: 10px; cursor: pointer; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .score { font-size: 20px; color: #ffcc00; margin: 10px; }
-        .task { font-size: 22px; margin-bottom: 10px; color: #00d4ff; }
+        body { background: #1a1a1a; color: white; font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
+        #game-ui { text-align: center; width: 800px; margin-top: 20px; }
+        canvas { background: #000; border: 5px solid #333; border-radius: 8px; box-shadow: 0 0 30px rgba(0, 212, 255, 0.2); cursor: pointer; }
+        .timer-bar { width: 100%; height: 20px; background: #333; margin: 10px 0; border-radius: 10px; overflow: hidden; }
+        #timer-fill { width: 100%; height: 100%; background: #ff4444; transition: width 0.1s linear; }
+        .question-text { font-size: 24px; color: #00d4ff; height: 60px; font-weight: bold; }
+        .hint { color: #888; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="task" id="question">Задание: Соедините части слова</div>
-        <div class="score">Счёт: <span id="scoreVal">0</span></div>
-        <div id="status">Нажимайте на трубы, чтобы менять путь!</div>
+    <div id="game-ui">
+        <div id="question" class="question-text">Загрузка системы...</div>
+        <div class="timer-bar"><div id="timer-fill"></div></div>
+        <div class="hint">Кликай на трубу, чтобы повернуть её к верному ответу!</div>
     </div>
-    <canvas id="gameCanvas" width="700" height="450"></canvas>
+    <canvas id="game" width="800" height="500"></canvas>
 
 <script>
-const canvas = document.getElementById('gameCanvas');
+const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
+const timerFill = document.getElementById('timer-fill');
+const qElement = document.getElementById('question');
 
-// База вопросов
-const quizData = [
-    { prefix: "RE", right: "ACTION", wrong: "ING", task: "Процесс взаимодействия" },
-    { prefix: "UN", right: "HAPPY", wrong: "NESS", task: "Антоним к слову Счастливый" },
-    { prefix: "MICRO", right: "SCOPE", wrong: "PHONE", task: "Прибор для мелких объектов" },
-    { prefix: "PRE", right: "VIEW", wrong: "SENT", task: "Предварительный просмотр" }
+// Набор вопросов (7 этапов)
+const quiz = [
+    { q: "1. 2 + 2 * 2 = ?", up: "6", down: "8", right: "up" },
+    { q: "2. Столица Франции?", left: "Лондон", right: "Париж", correct: "right" },
+    { q: "3. HTML - это язык...", up: "Разметки", down: "Программирования", right: "up" },
+    { q: "4. JS - это...", left: "Java", right: "JavaScript", correct: "right" },
+    { q: "5. Корень из 144?", up: "12", down: "14", right: "up" },
+    { q: "6. Планета с кольцами?", left: "Марс", right: "Сатурн", correct: "right" },
+    { q: "7. 1 бит - это...", up: "0 или 1", down: "8 байт", right: "up" }
 ];
 
-let currentIdx = 0;
-let score = 0;
+let level = 0;
+let timeLeft = 15;
+let isGameOver = false;
+let pipes = []; // Массив объектов сегментов
 
-// Описание сегментов (x, y, тип)
-// type: 0 - старт, 1 - угол, 2 - развилка, 3 - финиш
-let segments = [
-    { x: 100, y: 225, angle: 0, type: 'start' },
-    { x: 250, y: 225, angle: 0, type: 'corner' },
-    { x: 400, y: 225, angle: 0, type: 'corner' },
-    { x: 550, y: 125, angle: 0, type: 'end_top' }, // Верхний выход (правильный)
-    { x: 550, y: 325, angle: 0, type: 'end_bot' }  // Нижний выход (ложный)
-];
+// Инициализация первого (входного) сегмента
+pipes.push({ x: 0, y: 250, type: 'start', filled: true, angle: 0 });
+
+function initLevel() {
+    if (level >= quiz.length) {
+        isGameOver = true;
+        qElement.innerText = "🎉 СИСТЕМА ЗАПОЛНЕНА! ВЫ ПОБЕДИЛИ!";
+        return;
+    }
+    
+    timeLeft = 15;
+    const q = quiz[level];
+    qElement.innerText = q.q;
+
+    // Создаем новый сегмент в зависимости от текущего положения
+    let last = pipes[pipes.length - 1];
+    let newPipe = { 
+        x: last.x + 100, 
+        y: last.y, 
+        angle: 0, 
+        filled: false, 
+        type: (level % 2 === 0) ? 'up-down' : 'left-right' 
+    };
+    pipes.push(newPipe);
+}
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const q = quizData[currentIdx];
-    document.getElementById('question').innerText = `Тема: ${q.task}`;
-
-    segments.forEach(s => {
+    
+    pipes.forEach((p, i) => {
         ctx.save();
-        ctx.translate(s.x, s.y);
-        ctx.rotate(s.angle * Math.PI / 180);
-        
-        // Рисуем трубу
-        ctx.strokeStyle = (s.angle === 0 || s.angle === 180) ? "#333" : "#00d4ff";
-        if (s.type.includes('end')) ctx.strokeStyle = "#555";
-        
-        ctx.lineWidth = 30;
-        ctx.beginPath();
-        ctx.moveTo(-40, 0);
-        ctx.lineTo(40, 0);
+        ctx.translate(p.x + 50, p.y);
+        ctx.rotate(p.angle * Math.PI / 180);
+
+        // Внешний вид трубы
+        ctx.lineWidth = 40;
+        ctx.strokeStyle = "#444";
+        ctx.beginPath(); ctx.moveTo(-50, 0); ctx.lineTo(0, 0); 
+        // Изгиб
+        if (p.type !== 'start') ctx.lineTo(0, -50);
         ctx.stroke();
 
-        // Текст на концах труб
+        // Вода внутри
+        if (p.filled) {
+            ctx.lineWidth = 30;
+            ctx.strokeStyle = "#00d4ff";
+            ctx.beginPath(); ctx.moveTo(-55, 0); ctx.lineTo(0, 0); ctx.lineTo(0, -55);
+            ctx.stroke();
+        }
+        
+        // Текст ответов на активном сегменте
+        if (i === pipes.length - 1 && !isGameOver) {
+            ctx.restore();
+            ctx.fillStyle = "#fff";
+            ctx.font = "16px Arial";
+            const q = quiz[level];
+            if (p.type === 'up-down') {
+                ctx.fillText("⬆ " + q.up, p.x + 40, p.y - 60);
+                ctx.fillText("⬇ " + q.down, p.x + 40, p.y + 80);
+            } else {
+                ctx.fillText("⬅ " + q.left, p.x - 20, p.y - 60);
+                ctx.fillText("➡ " + q.right, p.x + 60, p.y - 60);
+            }
+            ctx.save();
+        }
         ctx.restore();
-        ctx.fillStyle = "white";
-        ctx.font = "14px bold Arial";
-        if (s.type === 'start') ctx.fillText(q.prefix, s.x - 20, s.y - 30);
-        if (s.type === 'end_top') {
-            ctx.fillStyle = "#0f0";
-            ctx.fillText(q.right, s.x - 20, s.y - 30);
-        }
-        if (s.type === 'end_bot') {
-            ctx.fillStyle = "#f44";
-            ctx.fillText(q.wrong, s.x - 20, s.y - 30);
-        }
     });
 
-    checkWin();
-}
-
-function checkWin() {
-    // Упрощенная логика: если средние трубы повернуты "вверх", то идем к правильному ответу
-    const mid1 = segments[1].angle;
-    const mid2 = segments[2].angle;
-    const status = document.getElementById('status');
-
-    if (mid1 === 270 && mid2 === 270) {
-        status.innerText = "✅ ВЕРНО! Поток идет к " + quizData[currentIdx].right;
-        status.style.color = "#0f0";
-        setTimeout(nextLevel, 1500);
-    } else if (mid1 === 90 && mid2 === 90) {
-        status.innerText = "❌ ОШИБКА! " + quizData[currentIdx].prefix + quizData[currentIdx].wrong + " — это не то.";
-        status.style.color = "#f44";
-    } else {
-        status.innerText = "Соедините трубы к правильному ответу!";
-        status.style.color = "white";
+    if (!isGameOver) {
+        timeLeft -= 0.016; // Примерно 60 fps
+        timerFill.style.width = (timeLeft / 15 * 100) + "%";
+        if (timeLeft <= 0) endGame("ВРЕМЯ ВЫШЛО! ТРУБЫ РАЗОРВАЛО!");
+        requestAnimationFrame(draw);
     }
 }
 
-function nextLevel() {
-    score += 10;
-    document.getElementById('scoreVal').innerText = score;
-    currentIdx = (currentIdx + 1) % quizData.length;
-    segments[1].angle = 0;
-    segments[2].angle = 0;
-    draw();
-}
+canvas.addEventListener('click', () => {
+    if (isGameOver) return;
+    
+    let current = pipes[pipes.length - 1];
+    current.angle = (current.angle + 90) % 360;
 
-canvas.addEventListener('click', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
+    // Проверка правильности (упрощенная логика углов)
+    const q = quiz[level];
+    let isCorrect = false;
 
-    segments.forEach(s => {
-        if (Math.hypot(mx - s.x, my - s.y) < 50 && s.type === 'corner') {
-            s.angle = (s.angle + 90) % 360;
-        }
-    });
-    draw();
+    if (current.type === 'up-down') {
+        if (q.right === "up" && current.angle === 0) isCorrect = true;
+        if (q.right === "down" && current.angle === 180) isCorrect = true;
+    } else {
+        if (q.correct === "right" && current.angle === 0) isCorrect = true;
+        if (q.correct === "left" && current.angle === 180) isCorrect = true;
+    }
+
+    if (isCorrect) {
+        current.filled = true;
+        level++;
+        initLevel();
+    } else if (current.angle % 180 === 0) { // Если повернул, но не туда
+        endGame("ОШИБКА! ТРУБА ЛОПНУЛА!");
+    }
 });
 
+function endGame(msg) {
+    isGameOver = true;
+    qElement.innerText = msg;
+    qElement.style.color = "#ff4444";
+}
+
+initLevel();
 draw();
 </script>
 </body>
