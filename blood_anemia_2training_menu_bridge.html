@@ -1,117 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Bridge Builder Game</title>
+    <title>Mixing Knowledge Game</title>
     <style>
         body { background: #222; color: white; display: flex; flex-direction: column; align-items: center; font-family: sans-serif; }
-        canvas { background: #333; border: 4px solid #555; cursor: pointer; margin-top: 20px; }
-        .info { margin-top: 20px; font-size: 20px; }
+        canvas { border: 4px solid #444; background: #000; cursor: pointer; margin-top: 20px; }
+        .ui { margin-top: 10px; text-align: center; }
+        .target { font-size: 24px; color: #0f0; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="info" id="stats">Загрузка...</div>
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
 
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const stats = document.getElementById('stats');
+    <div class="ui">
+        <div>Соберите слово: <span class="target" id="targetWord">REACTION</span></div>
+        <div id="status">Соедините трубы правильно!</div>
+    </div>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
 
-        let round = 1;
-        let lives = 5;
-        let gameOver = false;
-        let correctIdx = 0;
-        let pieces = [];
-        let bridge = [];
-        let shake = 0;
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const targetDisplay = document.getElementById('targetWord');
 
-        function initRound() {
-            if (round > 10 || lives <= 0) {
-                gameOver = true;
-                return;
-            }
-            correctIdx = Math.floor(Math.random() * 5);
-            pieces = [];
-            for (let i = 0; i < 5; i++) {
-                // Разные формы деталей
-                pieces.push({
-                    w: 40 + (i * 15),
-                    h: 30 + (Math.sin(i) * 20 + 20),
-                    x: 50 + (i * 150)
-                });
-            }
-        }
+// Состояние игры
+let segments = [
+    { x: 100, y: 150, text: 'RE', angle: 0, type: 'start' },   // Левая труба
+    { x: 300, y: 150, angle: 0, type: 'connector' },           // Центр (поворотный)
+    { x: 500, y: 150, text: 'ACTION', angle: 0, type: 'end' }  // Правая труба
+];
 
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Обновление статистики
-            stats.innerText = `Раунд: ${round}/10 | Жизни: ${"❤️".repeat(lives)}`;
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    segments.forEach((s, index) => {
+        ctx.save();
+        ctx.translate(s.x, s.y);
+        ctx.rotate(s.angle * Math.PI / 180);
+        
+        // Рисуем трубу
+        ctx.strokeStyle = (s.angle === 0) ? '#0af' : '#555';
+        ctx.lineWidth = 40;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(-40, 0);
+        ctx.lineTo(40, 0);
+        ctx.stroke();
 
-            if (gameOver) {
-                ctx.fillStyle = "white";
-                ctx.font = "40px Arial";
-                ctx.textAlign = "center";
-                ctx.fillText(lives > 0 ? "ПОБЕДА! 🎉" : "ИГРА ОКОНЧЕНА 💀", 400, 200);
-                return;
-            }
-
-            // Рисуем цель (чертеж)
-            ctx.strokeStyle = "#aaa";
-            ctx.setLineDash([5, 5]);
-            ctx.strokeRect(370, 50, 60, 60);
-            ctx.setLineDash([]);
-            
-            ctx.fillStyle = "#4CAF50";
-            const target = pieces[correctIdx];
-            ctx.fillRect(400 - target.w/2, 80 - target.h/2, target.w, target.h);
+        // Текст на трубе
+        if (s.text) {
             ctx.fillStyle = "white";
-            ctx.font = "14px Arial";
-            ctx.fillText("НУЖНА ЭТА ФОРМА", 400, 40);
-
-            // Рисуем мост
-            ctx.fillStyle = "gold";
-            bridge.forEach((b, i) => {
-                ctx.fillRect(20 + (i * 55), 180, 50, 15);
-            });
-
-            // Рисуем варианты выбора
-            let offsetX = Math.sin(Date.now() * 0.1) * shake;
-            pieces.forEach((p, i) => {
-                ctx.fillStyle = (shake > 0) ? "red" : "#3498db";
-                ctx.fillRect(p.x + (shake > 0 ? offsetX : 0), 300, p.w, p.h);
-                ctx.fillStyle = "white";
-                ctx.fillText(`Вариант ${i+1}`, p.x + p.w/2 - 25, 290);
-            });
-
-            if (shake > 0) shake *= 0.9; // Затухание тряски
-            requestAnimationFrame(draw);
+            ctx.font = "16px Arial";
+            ctx.textAlign = "center";
+            ctx.rotate(-s.angle * Math.PI / 180); // Держим текст ровно
+            ctx.fillText(s.text, 0, 5);
         }
+        ctx.restore();
+    });
 
-        canvas.addEventListener('click', (e) => {
-            if (gameOver) return;
-            const rect = canvas.getBoundingClientRect();
-            const mx = e.clientX - rect.left;
-            const my = e.clientY - rect.top;
+    checkConnection();
+}
 
-            pieces.forEach((p, i) => {
-                if (mx > p.x && mx < p.x + p.w && my > 300 && my < 300 + p.h) {
-                    if (i === correctIdx) {
-                        bridge.push(true);
-                        round++;
-                        initRound();
-                    } else {
-                        lives--;
-                        shake = 10;
-                        if (lives <= 0) gameOver = true;
-                    }
-                }
-            });
-        });
+function checkConnection() {
+    // Если все трубы в положении 0 градусов — они соединены
+    const isConnected = segments.every(s => s.angle % 360 === 0);
+    const status = document.getElementById('status');
+    
+    if (isConnected) {
+        status.innerText = "✅ СЛОВО СОБРАНО! Энергия течет!";
+        status.style.color = "#0f0";
+    } else {
+        status.innerText = "❌ Цепь разорвана...";
+        status.style.color = "#f00";
+    }
+}
 
-        initRound();
-        draw();
-    </script>
+canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    segments.forEach(s => {
+        // Простая проверка клика по сегменту
+        if (Math.hypot(mx - s.x, my - s.y) < 40) {
+            s.angle = (s.angle + 90) % 360; // Поворот на 90 градусов
+        }
+    });
+    draw();
+});
+
+draw();
+</script>
 </body>
 </html>
