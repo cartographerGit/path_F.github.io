@@ -1,1 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Med Matcher</title>
+    <style>
+        :root {
+            --accent: #ff8e73ff;
+            --correct: #63db93ff;
+            --bg: #0a0a0a;
+        }
+        body { 
+            background: var(--bg); color: #fff; 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; padding: 20px; box-sizing: border-box;
+        }
+        h2 { color: var(--accent); margin-bottom: 30px; }
+        
+        .game-container {
+            display: flex; justify-content: space-between;
+            width: 100%; max-width: 800px; position: relative;
+        }
+        
+        .column { display: flex; flex-direction: column; gap: 15px; width: 45%; z-index: 2; }
+        
+        .card {
+            background: #161616; border: 2px solid #333;
+            padding: 15px; border-radius: 10px; text-align: center;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+            font-size: 18px; min-height: 50px; display: flex; align-items: center; justify-content: center;
+        }
+        .card:hover { border-color: var(--accent); }
+        .card.selected { border-color: var(--accent); background: rgba(255, 142, 115, 0.1); transform: scale(1.05); }
+        .card.matched { border-color: var(--correct); color: var(--correct); cursor: default; opacity: 0.8; }
+        
+        /* Линии связи */
+        svg {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; z-index: 1;
+        }
+        line { stroke: var(--correct); stroke-width: 4; stroke-linecap: round; opacity: 0.6; }
+
+        .shake { animation: shake 0.4s; border-color: #ff4444 !important; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        #win-msg { 
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #161616; padding: 40px; border: 3px solid var(--correct);
+            border-radius: 20px; text-align: center; z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Соедините пары (6 случайных)</h2>
+    
+    <div class="game-container" id="game">
+        <svg id="svg-canvas"></svg>
+        <div class="column" id="left-col"></div>
+        <div class="column" id="right-col"></div>
+    </div>
+
+    <div id="win-msg">
+        <h1 style="color: var(--correct)">Отлично!</h1>
+        <p>Все пары найдены.</p>
+        <button onclick="location.reload()" style="background: var(--correct); border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">Ещё раз</button>
+    </div>
+
+<script>
+// Данные для пар
+const pairsPool = [
+    { l: "ЖДА", r: "ферр.▼, ОЖСС▲" },
+    { l: "АХЗ", r: "ферр.▲, ОЖСС▼" },
+    { l: "B12", r: "неврологич. синдром" },
+    { l: "B9", r: "гиперсегм. нейтр." },
+    { l: "Гемолиз", r: "RET ▲" },
+    { l: "Pb (свинец)", r: "MCV ▼, RET ▼" },
+    { l: "СКА", r: "Hb-патия" },
+    { l: "Минковского-Шоффара", r: "мембранопатия" },
+    { l: "Микроцитоз", r: "Талассемия" },
+    { l: "Макроцитоз", r: "анем. Фанкони" }
+];
+
+let selectedLeft = null;
+let matchedCount = 0;
+
+function init() {
+    // Выбираем 6 случайных пар
+    const currentPairs = pairsPool.sort(() => Math.random() - 0.5).slice(0, 6);
+    
+    const leftCol = document.getElementById('left-col');
+    const rightCol = document.getElementById('right-col');
+
+    // Перемешиваем левую и правую колонки отдельно
+    const leftItems = currentPairs.map(p => ({text: p.l, id: p.l})).sort(() => Math.random() - 0.5);
+    const rightItems = currentPairs.map(p => ({text: p.r, id: p.l})).sort(() => Math.random() - 0.5);
+
+    leftItems.forEach(item => {
+        const div = createCard(item.text, item.id, 'left');
+        leftCol.appendChild(div);
+    });
+
+    rightItems.forEach(item => {
+        const div = createCard(item.text, item.id, 'right');
+        rightCol.appendChild(div);
+    });
+}
+
+function createCard(text, id, side) {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerText = text;
+    div.dataset.id = id;
+    div.dataset.side = side;
+    div.onclick = () => handleSelect(div);
+    return div;
+}
+
+function handleSelect(card) {
+    if (card.classList.contains('matched')) return;
+
+    if (card.dataset.side === 'left') {
+        if (selectedLeft) selectedLeft.classList.remove('selected');
+        selectedLeft = card;
+        card.classList.add('selected');
+    } else {
+        // Если выбрана карточка справа
+        if (!selectedLeft) {
+            animateError(card);
+            return;
+        }
+
+        if (selectedLeft.dataset.id === card.dataset.id) {
+            // Успех
+            drawConnection(selectedLeft, card);
+            selectedLeft.classList.remove('selected');
+            selectedLeft.classList.add('matched');
+            card.classList.add('matched');
+            selectedLeft = null;
+            matchedCount++;
+            if (matchedCount === 6) setTimeout(() => document.getElementById('win-msg').style.display = 'block', 500);
+        } else {
+            // Ошибка
+            animateError(card);
+            animateError(selectedLeft);
+            selectedLeft.classList.remove('selected');
+            selectedLeft = null;
+        }
+    }
+}
+
+function animateError(el) {
+    el.classList.add('shake');
+    setTimeout(() => el.classList.remove('shake'), 400);
+}
+
+function drawConnection(el1, el2) {
+    const svg = document.getElementById('svg-canvas');
+    const rect1 = el1.getBoundingClientRect();
+    const rect2 = el2.getBoundingClientRect();
+    const container = document.getElementById('game').getBoundingClientRect();
+
+    const line = document.createElementNS("http://www.w3.org", "line");
+    
+    line.setAttribute("x1", rect1.right - container.left);
+    line.setAttribute("y1", rect1.top + rect1.height / 2 - container.top);
+    line.setAttribute("x2", rect2.left - container.left);
+    line.setAttribute("y2", rect2.top + rect2.height / 2 - container.top);
+
+    svg.appendChild(line);
+}
+
+init();
+</script>
+</body>
+</html>
 
