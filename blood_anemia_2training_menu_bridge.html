@@ -3,144 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Magnetic Swipe Quiz</title>
+    <title>Medical Zones Quiz</title>
     <style>
-        body { background: #050505; color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; overflow: hidden; touch-action: none; }
-        #game-ui { width: 100%; max-width: 600px; display: flex; justify-content: space-between; padding: 15px; box-sizing: border-box; font-size: 20px; z-index: 10; }
-        #hearts { color: #ff4444; letter-spacing: 3px; }
-        #timer-container { width: 100%; height: 6px; background: #222; position: absolute; top: 60px; }
-        #timer-bar { width: 100%; height: 100%; background: #00d4ff; transition: width 0.1s linear; }
-
-        #arena { position: relative; width: 100vw; height: 80vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        body { background: #050505; color: #fff; font-family: 'Arial', sans-serif; margin: 0; overflow: hidden; touch-action: none; }
         
-        .magnet { position: absolute; padding: 12px; border: 2px solid #333; border-radius: 10px; background: rgba(0,212,255,0.05); color: #00d4ff; font-weight: bold; width: 100px; text-align: center; font-size: 14px; text-transform: uppercase; }
-        .top { top: 20px; border-color: #00d4ff; }
-        .bottom { bottom: 20px; border-color: #00d4ff; }
-        .left { left: 10px; border-color: #00d4ff; }
-        .right { right: 10px; border-color: #00d4ff; }
+        /* Сетка на 4 сектора */
+        #grid { position: absolute; width: 100vw; height: 100vh; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+        .zone { border: 1px solid #222; display: flex; align-items: center; justify-content: center; position: relative; transition: background 0.3s; cursor: pointer; }
+        .zone:hover { background: rgba(0, 212, 255, 0.05); }
+        .zone-label { font-size: 18px; font-weight: bold; color: #00d4ff; text-align: center; pointer-events: none; padding: 10px; }
 
-        #question { position: absolute; font-size: 32px; font-weight: 900; color: #ffcc00; text-align: center; pointer-events: none; transition: transform 0.1s ease-out; text-shadow: 0 0 20px rgba(255,204,0,0.4); }
-        .hint { position: fixed; bottom: 20px; color: #444; font-size: 12px; }
+        /* Верхняя панель */
+        #ui { position: absolute; top: 0; width: 100%; display: flex; justify-content: space-between; padding: 15px; box-sizing: border-box; z-index: 10; background: rgba(0,0,0,0.5); }
+        
+        /* Вопрос в центре */
+        #question-card { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 200px; height: 120px; background: #222; border: 3px solid #ffcc00;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            padding: 15px; border-radius: 12px; font-weight: bold; font-size: 20px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8); z-index: 5; pointer-events: none;
+            transition: transform 0.1s;
+        }
+
+        /* Список ошибок в конце */
+        #result-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #111; display: none; flex-direction: column; 
+            align-items: center; padding: 20px; overflow-y: auto; z-index: 100; 
+        }
+        .error-item { background: #222; margin: 5px; padding: 10px; border-left: 4px solid #f44; width: 90%; max-width: 500px; }
+        .error-q { color: #ffcc00; font-weight: bold; }
+        
+        /* Анимация ошибки */
+        .shake { animation: shake 0.4s; }
+        @keyframes shake {
+            0%, 100% { left: 50%; }
+            20%, 60% { left: 48%; }
+            40%, 80% { left: 52%; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="game-ui">
-        <div id="hearts">❤️❤️❤️❤️❤️</div>
-        <div>Этап: <span id="round">1</span>/10</div>
-    </div>
-    <div id="timer-container"><div id="timer-bar"></div></div>
-
-    <div id="arena">
-        <div id="m-up" class="magnet top">ВВЕРХ</div>
-        <div id="m-down" class="magnet bottom">ВНИЗ</div>
-        <div id="m-left" class="magnet left">ЛЕВО</div>
-        <div id="m-right" class="magnet right">ПРАВО</div>
-        <div id="question">ЦЕНТР</div>
+    <div id="ui">
+        <div>Раунд: <span id="round-num">1</span>/12</div>
+        <div id="hearts" style="color:#f44">❤️❤️❤️❤️❤️</div>
     </div>
 
-    <div class="hint">ПК: Стрелки | Телефон: Свайп</div>
+    <div id="grid">
+        <div class="zone" id="z0" onclick="handleZoneClick(0)"><div class="zone-label">...</div></div>
+        <div class="zone" id="z1" onclick="handleZoneClick(1)"><div class="zone-label">...</div></div>
+        <div class="zone" id="z2" onclick="handleZoneClick(2)"><div class="zone-label">...</div></div>
+        <div class="zone" id="z3" onclick="handleZoneClick(3)"><div class="zone-label">...</div></div>
+    </div>
+
+    <div id="question-card">ЦЕНТР</div>
+
+    <div id="result-screen">
+        <h2>Игра окончена</h2>
+        <div id="final-stats"></div>
+        <h3>Ваши ошибки:</h3>
+        <div id="errors-list"></div>
+        <button onclick="location.reload()" style="margin-top:20px; padding:10px 20px;">Начать заново</button>
+    </div>
 
 <script>
-const quiz = [
-    { q: "КИТ", up: "Лес", down: "Океан", left: "Космос", right: "Пустыня", ok: "down" },
-    { q: "МАРС", up: "Еда", down: "Город", left: "Планета", right: "Цветок", ok: "left" },
-    { q: "БОРЩ", up: "Одежда", down: "Суп", left: "Мебель", right: "Инструмент", ok: "down" },
-    { q: "ДУБ", up: "Дерево", down: "Рыба", left: "Птица", right: "Металл", ok: "up" },
-    { q: "МОЛОТОК", up: "Ткань", down: "Посуда", left: "Овощ", right: "Инструмент", ok: "right" },
-    { q: "6 + 6", up: "10", down: "12", left: "14", right: "16", ok: "down" },
-    { q: "JS", up: "Скрипт", down: "Стиль", left: "Железо", right: "Книга", ok: "up" },
-    { q: "ТОКИО", up: "Китай", down: "Корея", left: "Япония", right: "США", ok: "left" },
-    { q: "ЗОЛОТО", up: "Газ", down: "Дерево", left: "Металл", right: "Вода", ok: "left" },
-    { q: "ФИНАЛ", up: "Конец", down: "Старт", left: "Пауза", right: "Цикл", ok: "up" }
+// Ваши данные (сокращены для примера до 12, можно вставить все 41)
+const allQuestions = [
+    { q: "ЖДА", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV N"], c: "MCV ▼, RET ▼" },
+    { q: "B12", a: ["MCV ▼", "MCV ▲, RET ▼", "MCV N", "RET ▲"], c: "MCV ▲, RET ▼" },
+    { q: "Гемолиз", a: ["MCV ▲/N, RET ▲", "MCV ▼", "RET ▼", "Ферритин ▲"], c: "MCV ▲/N, RET ▲" },
+    { q: "АХЗ", a: ["ферр.▼, ОЖСС▲", "ферр.▲, ОЖСС▼", "B12 ▼", "Hb▲"], c: "ферр.▲, ОЖСС▼" },
+    { q: "СКА", a: ["Hb-патия", "мембранопатия", "ферментопатия", "инфекция"], c: "Hb-патия" },
+    { q: "Микроцитоз", a: ["ЖДА, Pb", "В12", "В9", "Гемолиз"], c: "ЖДА, Pb" },
+    { q: "B9", a: ["Гиперсегм. нейтр.", "Микроцитоз", "RET ▲", "Hb ▲"], c: "Гиперсегм. нейтр." },
+    { q: "RET ▲", a: ["Гемолиз", "ЖДА", "АХЗ", "В12"], c: "Гемолиз" },
+    { q: "Макроцитоз", a: ["В12, Фанкони", "ЖДА", "Pb", "Талассемия"], c: "В12, Фанкони" },
+    { q: "Причина #1 B12", a: ["ПА", "Диета", "Глисты", "Кровь"], c: "ПА" },
+    { q: "Неврология характерна для:", a: ["В12", "В9", "ЖДА", "Pb"], c: "В12" },
+    { q: "Сидеропенич. синдром", a: ["ЖДА", "В12", "В9", "Гемолиз"], c: "ЖДА" }
 ];
 
 let state = {
-    lvl: 0, lives: 5, time: 10, speed: 8, 
-    isMoving: false, over: false,
-    touchX: 0, touchY: 0
+    lvl: 0,
+    lives: 5,
+    wrongAnswers: [],
+    currentQ: null,
+    startX: 0, startY: 0,
+    isAnimating: false
 };
 
-const qDiv = document.getElementById('question');
+const card = document.getElementById('question-card');
 
 function init() {
-    updateView();
-    window.addEventListener('keydown', e => move(e.key.replace('Arrow','').toLowerCase()));
-    
+    // Перемешиваем и берем 12 вопросов
+    state.currentQ = allQuestions.sort(() => Math.random() - 0.5).slice(0, 12);
+    loadQuestion();
+
     // Swipe Logic
     document.addEventListener('touchstart', e => {
-        state.touchX = e.touches[0].clientX;
-        state.touchY = e.touches[0].clientY;
+        state.startX = e.touches[0].clientX;
+        state.startY = e.touches[0].clientY;
     });
+
     document.addEventListener('touchend', e => {
-        const dx = e.changedTouches[0].clientX - state.touchX;
-        const dy = e.changedTouches[0].clientY - state.touchY;
-        if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? 'right' : 'left');
-        else move(dy > 0 ? 'down' : 'up');
+        if (state.isAnimating) return;
+        const dx = e.changedTouches[0].clientX - state.startX;
+        const dy = e.changedTouches[0].clientY - state.startY;
+        
+        if (Math.abs(dx) > 50 || Math.abs(dy) > 50) {
+            let zoneIndex;
+            if (Math.abs(dx) > Math.abs(dy)) zoneIndex = (dx > 0) ? 1 : 0; // упрощенно для 4 зон
+            else zoneIndex = (dy > 0) ? 2 : 0; // это требует более сложной логики квадрантов:
+            
+            // Точная логика квадрантов для свайпа:
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            processChoice(getZoneAtPos(endX, endY));
+        }
     });
-
-    setInterval(tick, 100);
 }
 
-function updateView() {
-    if (state.lvl >= 10) return win();
-    const data = quiz[state.lvl];
-    qDiv.innerText = data.q;
-    qDiv.style.transform = `translate(0, 0)`;
-    document.getElementById('m-up').innerText = data.up;
-    document.getElementById('m-down').innerText = data.down;
-    document.getElementById('m-left').innerText = data.left;
-    document.getElementById('m-right').innerText = data.right;
-    document.getElementById('round').innerText = state.lvl + 1;
-    state.isMoving = false;
-    state.time = 10;
+function getZoneAtPos(x, y) {
+    const w = window.innerWidth / 2;
+    const h = window.innerHeight / 2;
+    if (x < w && y < h) return 0;
+    if (x >= w && y < h) return 1;
+    if (x < w && y >= h) return 2;
+    return 3;
 }
 
-function move(dir) {
-    if (state.isMoving || state.over || !['up','down','left','right'].includes(dir)) return;
-    state.isMoving = true;
-    
-    // Анимация улета
-    const offset = 600;
-    const x = dir === 'left' ? -offset : (dir === 'right' ? offset : 0);
-    const y = dir === 'up' ? -offset : (dir === 'down' ? offset : 0);
-    qDiv.style.transition = `transform ${0.5 - (state.lvl*0.03)}s ease-in`;
-    qDiv.style.transform = `translate(${x}px, ${y}px)`;
-
-    setTimeout(() => check(dir), 300);
+function handleZoneClick(index) {
+    if (!state.isAnimating) processChoice(index);
 }
 
-function check(dir) {
-    if (dir === quiz[state.lvl].ok) {
-        state.lvl++;
-        state.speed += 1; // Ускорение (логическое)
-        updateView();
-    } else {
-        fail();
+function loadQuestion() {
+    const q = state.currentQ[state.lvl];
+    document.getElementById('round-num').innerText = state.lvl + 1;
+    card.innerText = q.q;
+    card.style.left = '50%'; card.style.top = '50%';
+    card.style.opacity = '1';
+
+    // Заполняем зоны ответами (перемешанными)
+    const shuffledAns = [...q.a].sort(() => Math.random() - 0.5);
+    for(let i=0; i<4; i++) {
+        document.getElementById(`z${i}`).querySelector('.zone-label').innerText = shuffledAns[i] || "";
     }
 }
 
-function fail() {
-    state.lives--;
-    updateHearts();
-    if (state.lives <= 0) return lose();
-    qDiv.style.transition = 'none';
-    updateView();
+function processChoice(index) {
+    state.isAnimating = true;
+    const chosenText = document.getElementById(`z${index}`).querySelector('.zone-label').innerText;
+    const correctText = state.currentQ[state.lvl].c;
+
+    if (chosenText === correctText) {
+        // Анимация полета в зону
+        const zone = document.getElementById(`z${index}`).getBoundingClientRect();
+        card.style.transition = "all 0.4s ease-in";
+        card.style.left = (zone.left + zone.width/2) + 'px';
+        card.style.top = (zone.top + zone.height/2) + 'px';
+        card.style.opacity = '0';
+        
+        setTimeout(() => {
+            state.lvl++;
+            state.isAnimating = false;
+            card.style.transition = "none";
+            if (state.lvl < 12) loadQuestion();
+            else finish();
+        }, 400);
+    } else {
+        // Ошибка
+        state.wrongAnswers.push({ q: state.currentQ[state.lvl].q, c: correctText, user: chosenText });
+        state.lives--;
+        updateHearts();
+        
+        card.classList.add('shake');
+        setTimeout(() => {
+            card.classList.remove('shake');
+            state.isAnimating = false;
+            if (state.lives <= 0) finish();
+        }, 400);
+    }
 }
 
 function updateHearts() {
-    document.getElementById('hearts').innerText = "❤️".repeat(state.lives);
+    document.getElementById('hearts').innerText = "❤️".repeat(Math.max(0, state.lives));
 }
 
-function tick() {
-    if (state.over || state.isMoving) return;
-    state.time -= 0.1;
-    document.getElementById('timer-bar').style.width = (state.time * 10) + "%";
-    if (state.time <= 0) fail();
+function finish() {
+    document.getElementById('result-screen').style.display = 'flex';
+    document.getElementById('final-stats').innerText = `Пройдено уровней: ${state.lvl} из 12`;
+    
+    const list = document.getElementById('errors-list');
+    list.innerHTML = state.wrongAnswers.map(err => `
+        <div class="error-item">
+            <div class="error-q">${err.q}</div>
+            <div style="font-size:14px">Правильно: <b style="color:#0f0">${err.c}</b></div>
+            <div style="font-size:14px">Вы выбрали: <b style="color:#f44">${err.user}</b></div>
+        </div>
+    `).join('');
 }
-
-function win() { state.over = true; qDiv.innerText = "🏆 ПОБЕДА!"; qDiv.style.color = "#0f0"; }
-function lose() { state.over = true; qDiv.innerText = "💀 GAME OVER"; qDiv.style.color = "#f00"; }
 
 init();
 </script>
