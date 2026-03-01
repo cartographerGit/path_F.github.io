@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Medical Zones Quiz</title>
+    <style>
+        :root {
+            --accent: #ff8e73ff; /* Коралловый */
+            --correct: #63db93ff; /* Мятный */
+            --bg: #0a0a0a;
+        }
+
+        body { 
+            background: var(--bg); 
+            color: #fff; 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            overflow: hidden; 
+            touch-action: none; 
+        }
+        
+        /* Сетка на 4 зоны */
+        #grid { 
+            position: absolute; 
+            width: 100vw; 
+            height: 100vh; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            grid-template-rows: 1fr 1fr; 
+        }
+
+        .zone { 
+            border: 1px solid #1a1a1a; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 10px;
+            box-sizing: border-box;
+            overflow: hidden;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .zone:active { background: rgba(99, 219, 147, 0.1); }
+
+        .zone-label { 
+            /* Динамический шрифт: подстраивается под экран */
+            font-size: clamp(14px, 3.5vw, 22px); 
+            font-weight: bold; 
+            color: var(--correct); 
+            text-align: center; 
+            pointer-events: none; 
+            line-height: 1.2;
+            word-wrap: break-word;
+            hyphens: auto;
+            max-width: 100%;
+        }
+
+        /* Верхняя панель */
+        #ui { 
+            position: absolute; 
+            top: 0; 
+            width: 100%; 
+            display: flex; 
+            justify-content: center; 
+            padding: 20px; 
+            z-index: 10; 
+            pointer-events: none;
+        }
+        #progress { 
+            font-size: 22px; 
+            color: var(--accent); 
+            font-weight: bold; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        /* Карточка вопроса */
+        #question-card { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            width: 260px; 
+            min-height: 120px; 
+            background: #161616; 
+            border: 3px solid var(--accent);
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: center;
+            padding: 20px; 
+            border-radius: 20px; 
+            font-weight: bold; 
+            font-size: clamp(18px, 5vw, 26px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8); 
+            z-index: 5; 
+            pointer-events: none;
+            transition: transform 0.1s, opacity 0.3s, left 0.4s, top 0.4s;
+        }
+
+        /* Результаты */
+        #result-screen { 
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--bg); 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            overflow-y: auto; 
+            z-index: 100; 
+        }
+        .error-item { 
+            background: #161616; 
+            margin: 10px 0; 
+            padding: 15px; 
+            border-left: 5px solid var(--accent); 
+            width: 90%; 
+            max-width: 500px; 
+            border-radius: 8px; 
+        }
+        .error-q { color: var(--accent); font-weight: bold; font-size: 18px; margin-bottom: 5px; }
+
+        /* Анимации */
+        .shake { animation: shake 0.4s both; border-color: #ff4444 !important; }
+        @keyframes shake {
+            10%, 90% { transform: translate(-52%, -50%); }
+            20%, 80% { transform: translate(-48%, -50%); }
+            30%, 50%, 70% { transform: translate(-53%, -50%); }
+            40%, 60% { transform: translate(-47%, -50%); }
+        }
+
+        button { 
+            margin: 20px; 
+            padding: 15px 40px; 
+            background: var(--correct); 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            font-size: 18px; 
+            cursor: pointer; 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui"><div id="progress">Вопрос: 1/12</div></div>
+
+    <div id="grid">
+        <div class="zone" onclick="processChoice(0)"><div class="zone-label"></div></div>
+        <div class="zone" onclick="processChoice(1)"><div class="zone-label"></div></div>
+        <div class="zone" onclick="processChoice(2)"><div class="zone-label"></div></div>
+        <div class="zone" onclick="processChoice(3)"><div class="zone-label"></div></div>
+    </div>
+
+    <div id="question-card">ЦЕНТР</div>
+
+    <div id="result-screen">
+        <h2 style="color: var(--correct)">Тест завершен!</h2>
+        <div id="final-stats" style="font-size: 20px; margin-bottom: 20px;"></div>
+        <h3 id="error-title">История ошибок:</h3>
+        <div id="errors-list"></div>
+        <button onclick="location.reload()">Начать заново</button>
+    </div>
+
+<script>
+// Ваш массив вопросов
+const questions = [
+    { q: "ЖДА", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV N"], c: "MCV ▼, RET ▼" },
+    { q: "отравл. Pb", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV N"], c: "MCV ▼, RET ▼" },
+    { q: "B12", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV N"], c: "MCV ▲, RET ▼" },
+    { q: "B9", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV N"], c: "MCV ▲, RET ▼" },
+    { q: "Гемолиз", a: ["MCV ▼/N, RET ▲", "MCV ▲/N, RET ▲", "MCV ▲/N, RET ▼", "MCV ▼"], c: "MCV ▲/N, RET ▲" },
+    { q: "Синдромы В12", a: ["сидеропенич.", "инфекции", "неврологич.", "геморрагич."], c: "неврологич." },
+    { q: "ЖДА", a: ["ферр.▼, ОЖСС▲", "ферр.▲, ОЖСС▲", "ферр.▼, ОЖСС▼", "ферр.▲, ОЖСС▼"], c: "ферр.▼, ОЖСС▲" },
+    { q: "АХЗ", a: ["ферр.▼, ОЖСС▲", "ферр.▲, ОЖСС▲", "ферр.▲, ОЖСС▼", "ферр.▼, ОЖСС▼"], c: "ферр.▲, ОЖСС▼" },
+    { q: "Причина #1 B12", a: ["ПА", "алиментарная", "мальабсорбция", "диета"], c: "ПА" },
+    { q: "ЖДА", a: ["sTfR▼, ОЖСС▲", "sTfR▲, ОЖСС▲", "sTfR▼, ОЖСС▼", "sTfR▲, ОЖСС▼"], c: "sTfR▲, ОЖСС▲" },
+    { q: "СКА", a: ["Hb-патия", "мембранопатия", "ферментопатия", "инфекция"], c: "Hb-патия" },
+    { q: "Гиперсегментация<br>нейтрофилов", a: ["B9", "ЖДА", "Pb", "АХЗ"], c: "B9" }
+];
+
+let state = {
+    lvl: 0,
+    wrongLog: [],
+    currentBatch: [],
+    animating: false,
+    startX: 0, startY: 0
+};
+
+const card = document.getElementById('question-card');
+
+function init() {
+    state.currentBatch = [...questions].sort(() => Math.random() - 0.5).slice(0, 12);
+    loadLevel();
+
+    // Mouse Click & Swipe
+    document.addEventListener('touchstart', e => {
+        state.startX = e.touches[0].clientX;
+        state.startY = e.touches[0].clientY;
+    });
+
+    document.addEventListener('touchend', e => {
+        if (state.animating) return;
+        const dx = e.changedTouches[0].clientX - state.startX;
+        const dy = e.changedTouches[0].clientY - state.startY;
+        if (Math.abs(dx) > 50 || Math.abs(dy) > 50) {
+            processChoice(getZoneIndex(e.changedTouches[0].clientX, e.changedTouches[0].clientY));
+        }
+    });
+}
+
+function getZoneIndex(x, y) {
+    const w = window.innerWidth / 2;
+    const h = window.innerHeight / 2;
+    if (x < w) return (y < h) ? 0 : 2;
+    return (y < h) ? 1 : 3;
+}
+
+function loadLevel() {
+    const qData = state.currentBatch[state.lvl];
+    document.getElementById('progress').innerText = `Вопрос: ${state.lvl + 1}/12`;
+    card.innerHTML = qData.q; // Поддержка <br>
+    card.style.opacity = '1';
+    card.style.left = '50%'; card.style.top = '50%';
+    card.style.transform = 'translate(-50%, -50%) scale(1)';
+
+    const zones = document.querySelectorAll('.zone-label');
+    const answers = [...qData.a].sort(() => Math.random() - 0.5);
+    zones.forEach((z, i) => z.innerHTML = answers[i] || "");
+}
+
+function processChoice(idx) {
+    if (state.animating) return;
+    
+    const zones = document.querySelectorAll('.zone-label');
+    const chosen = zones[idx].innerHTML;
+    const correct = state.currentBatch[state.lvl].c;
+
+    if (chosen === correct) {
+        state.animating = true;
+        const zoneRect = zones[idx].parentElement.getBoundingClientRect();
+        
+        card.style.transition = "all 0.4s cubic-bezier(0.5, 0, 0.5, 1)";
+        card.style.left = (zoneRect.left + zoneRect.width/2) + 'px';
+        card.style.top = (zoneRect.top + zoneRect.height/2) + 'px';
+        card.style.transform = "translate(-50%, -50%) scale(0.1)";
+        card.style.opacity = "0";
+
+        setTimeout(() => {
+            state.lvl++;
+            state.animating = false;
+            card.style.transition = "none";
+            if (state.lvl < 12) loadLevel();
+            else showResults();
+        }, 450);
+    } else {
+        // Ошибка: Тряска, но вопрос остается для повторной попытки
+        state.wrongLog.push({ q: state.currentBatch[state.lvl].q, c: correct, user: chosen });
+        card.classList.add('shake');
+        setTimeout(() => card.classList.remove('shake'), 400);
+    }
+}
+
+function showResults() {
+    document.getElementById('result-screen').style.display = 'flex';
+    document.getElementById('final-stats').innerText = `Всего попыток с ошибками: ${state.wrongLog.length}`;
+    const list = document.getElementById('errors-list');
+    
+    // Убираем дубликаты из истории ошибок для чистого отчета
+    const uniqueErrors = Array.from(new Set(state.wrongLog.map(a => a.q)))
+        .map(q => state.wrongLog.find(a => a.q === q));
+
+    list.innerHTML = uniqueErrors.map(err => `
+        <div class="error-item">
+            <div class="error-q">${err.q}</div>
+            <div style="font-size:15px; color:#aaa">Нужно было: <span style="color:var(--correct)">${err.c}</span></div>
+        </div>
+    `).join('');
+}
+
+init();
+</script>
+</body>
+</html>
