@@ -5,204 +5,201 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Medical Zones Quiz</title>
     <style>
-        body { background: #050505; color: #fff; font-family: 'Arial', sans-serif; margin: 0; overflow: hidden; touch-action: none; }
+        body { background: #0a0a0a; color: #fff; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; overflow: hidden; touch-action: none; }
         
-        /* Сетка на 4 сектора */
+        /* Сетка на 4 зоны */
         #grid { position: absolute; width: 100vw; height: 100vh; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-        .zone { border: 1px solid #222; display: flex; align-items: center; justify-content: center; position: relative; transition: background 0.3s; cursor: pointer; }
-        .zone:hover { background: rgba(0, 212, 255, 0.05); }
-        .zone-label { font-size: 18px; font-weight: bold; color: #00d4ff; text-align: center; pointer-events: none; padding: 10px; }
+        .zone { border: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: center; position: relative; transition: background 0.2s; cursor: pointer; }
+        .zone:active { background: rgba(0, 212, 255, 0.1); }
+        .zone-label { font-size: clamp(14px, 4vw, 18px); font-weight: bold; color: #00d4ff; text-align: center; pointer-events: none; padding: 15px; }
 
-        /* Верхняя панель */
-        #ui { position: absolute; top: 0; width: 100%; display: flex; justify-content: space-between; padding: 15px; box-sizing: border-box; z-index: 10; background: rgba(0,0,0,0.5); }
+        /* Интерфейс */
+        #ui { position: absolute; top: 0; width: 100%; display: flex; justify-content: center; padding: 15px; box-sizing: border-box; z-index: 10; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); }
+        #progress { font-size: 20px; color: #aaa; }
         
-        /* Вопрос в центре */
+        /* Карточка вопроса */
         #question-card { 
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 200px; height: 120px; background: #222; border: 3px solid #ffcc00;
+            width: 220px; min-height: 100px; background: #1a1a1a; border: 2px solid #ffcc00;
             display: flex; align-items: center; justify-content: center; text-align: center;
-            padding: 15px; border-radius: 12px; font-weight: bold; font-size: 20px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8); z-index: 5; pointer-events: none;
-            transition: transform 0.1s;
+            padding: 20px; border-radius: 15px; font-weight: bold; font-size: 18px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9); z-index: 5; pointer-events: none;
+            transition: transform 0.1s, opacity 0.3s;
         }
 
-        /* Список ошибок в конце */
+        /* Экран результатов */
         #result-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #111; display: none; flex-direction: column; 
+            background: #0a0a0a; display: none; flex-direction: column; 
             align-items: center; padding: 20px; overflow-y: auto; z-index: 100; 
         }
-        .error-item { background: #222; margin: 5px; padding: 10px; border-left: 4px solid #f44; width: 90%; max-width: 500px; }
-        .error-q { color: #ffcc00; font-weight: bold; }
+        .error-item { background: #161616; margin: 8px 0; padding: 15px; border-left: 4px solid #f44; width: 100%; max-width: 500px; border-radius: 4px; }
+        .error-q { color: #ffcc00; font-weight: bold; margin-bottom: 5px; }
+        .stats-main { font-size: 24px; margin: 20px 0; color: #0f0; }
         
-        /* Анимация ошибки */
-        .shake { animation: shake 0.4s; }
+        /* Анимации */
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake {
-            0%, 100% { left: 50%; }
-            20%, 60% { left: 48%; }
-            40%, 80% { left: 52%; }
+            10%, 90% { transform: translate(-52%, -50%); }
+            20%, 80% { transform: translate(-48%, -50%); }
+            30%, 50%, 70% { transform: translate(-53%, -50%); border-color: #f44; }
+            40%, 60% { transform: translate(-47%, -50%); }
         }
     </style>
 </head>
 <body>
 
-    <div id="ui">
-        <div>Раунд: <span id="round-num">1</span>/12</div>
-        <div id="hearts" style="color:#f44">❤️❤️❤️❤️❤️</div>
-    </div>
+    <div id="ui"><div id="progress">Вопрос: 1/12</div></div>
 
     <div id="grid">
-        <div class="zone" id="z0" onclick="handleZoneClick(0)"><div class="zone-label">...</div></div>
-        <div class="zone" id="z1" onclick="handleZoneClick(1)"><div class="zone-label">...</div></div>
-        <div class="zone" id="z2" onclick="handleZoneClick(2)"><div class="zone-label">...</div></div>
-        <div class="zone" id="z3" onclick="handleZoneClick(3)"><div class="zone-label">...</div></div>
+        <div class="zone" id="z0" onclick="processChoice(0)"><div class="zone-label"></div></div>
+        <div class="zone" id="z1" onclick="processChoice(1)"><div class="zone-label"></div></div>
+        <div class="zone" id="z2" onclick="processChoice(2)"><div class="zone-label"></div></div>
+        <div class="zone" id="z3" onclick="processChoice(3)"><div class="zone-label"></div></div>
     </div>
 
     <div id="question-card">ЦЕНТР</div>
 
     <div id="result-screen">
-        <h2>Игра окончена</h2>
-        <div id="final-stats"></div>
-        <h3>Ваши ошибки:</h3>
+        <div class="stats-main">Тест завершен!</div>
+        <div id="final-score" style="margin-bottom: 20px;"></div>
+        <h3 id="error-title">Ваши ошибки:</h3>
         <div id="errors-list"></div>
-        <button onclick="location.reload()" style="margin-top:20px; padding:10px 20px;">Начать заново</button>
+        <button onclick="location.reload()" style="margin: 30px; padding: 12px 30px; background: #00d4ff; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">Повторить</button>
     </div>
 
 <script>
-// Ваши данные (сокращены для примера до 12, можно вставить все 41)
-const allQuestions = [
+const questionsMassive = [
     { q: "ЖДА", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV N"], c: "MCV ▼, RET ▼" },
-    { q: "B12", a: ["MCV ▼", "MCV ▲, RET ▼", "MCV N", "RET ▲"], c: "MCV ▲, RET ▼" },
-    { q: "Гемолиз", a: ["MCV ▲/N, RET ▲", "MCV ▼", "RET ▼", "Ферритин ▲"], c: "MCV ▲/N, RET ▲" },
-    { q: "АХЗ", a: ["ферр.▼, ОЖСС▲", "ферр.▲, ОЖСС▼", "B12 ▼", "Hb▲"], c: "ферр.▲, ОЖСС▼" },
-    { q: "СКА", a: ["Hb-патия", "мембранопатия", "ферментопатия", "инфекция"], c: "Hb-патия" },
+    { q: "отравл. Pb", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV N"], c: "MCV ▼, RET ▼" },
+    { q: "B12", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV N"], c: "MCV ▲, RET ▼" },
+    { q: "B9", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV N"], c: "MCV ▲, RET ▼" },
+    { q: "Гемолиз", a: ["MCV ▼/N, RET ▲", "MCV ▲/N, RET ▲", "MCV ▲/N, RET ▼", "MCV ▼"], c: "MCV ▲/N, RET ▲" },
+    { q: "Синдромы В12", a: ["сидеропенич.", "инфекции", "неврологич.", "геморрагич."], c: "неврологич." },
+    { q: "ЖДА (показатели)", a: ["ферр.▼, ОЖСС▲", "ферр.▲, ОЖСС▲", "ферр.▼, ОЖСС▼", "ферр.▲, ОЖСС▼"], c: "ферр.▼, ОЖСС▲" },
+    { q: "АХЗ (показатели)", a: ["ферр.▼, ОЖСС▲", "ферр.▲, ОЖСС▲", "ферр.▲, ОЖСС▼", "ферр.▼, ОЖСС▼"], c: "ферр.▲, ОЖСС▼" },
+    { q: "Причина #1 B12", a: ["ПА", "алиментарная", "мальабсорбция", "кровопотеря"], c: "ПА" },
+    { q: "ЖДА (рецепторы)", a: ["sTfR▼, ОЖСС▲", "sTfR▲, ОЖСС▲", "sTfR▼, ОЖСС▼", "sTfR▲, ОЖСС▼"], c: "sTfR▲, ОЖСС▲" },
     { q: "Микроцитоз", a: ["ЖДА, Pb", "В12", "В9", "Гемолиз"], c: "ЖДА, Pb" },
-    { q: "B9", a: ["Гиперсегм. нейтр.", "Микроцитоз", "RET ▲", "Hb ▲"], c: "Гиперсегм. нейтр." },
-    { q: "RET ▲", a: ["Гемолиз", "ЖДА", "АХЗ", "В12"], c: "Гемолиз" },
     { q: "Макроцитоз", a: ["В12, Фанкони", "ЖДА", "Pb", "Талассемия"], c: "В12, Фанкони" },
-    { q: "Причина #1 B12", a: ["ПА", "Диета", "Глисты", "Кровь"], c: "ПА" },
-    { q: "Неврология характерна для:", a: ["В12", "В9", "ЖДА", "Pb"], c: "В12" },
-    { q: "Сидеропенич. синдром", a: ["ЖДА", "В12", "В9", "Гемолиз"], c: "ЖДА" }
+    { q: "RET ▲", a: ["Гемолиз", "ЖДА", "АХЗ", "В12"], c: "Гемолиз" },
+    { q: "СКА", a: ["Hb-патия", "мембранопатия", "ферментопатия", "инфекция"], c: "Hb-патия" },
+    { q: "бол. Минковского-Шоффара", a: ["Hb-патия", "мембранопатия", "ферментопатия", "вирус"], c: "мембранопатия" },
+    { q: "Гиперсегментация нейтрофилов", a: ["B9", "ЖДА", "отравл. Pb", "АХЗ"], c: "B9" }
+    // ... можно добавить остальные ваши вопросы здесь
 ];
 
 let state = {
     lvl: 0,
-    lives: 5,
     wrongAnswers: [],
-    currentQ: null,
+    currentBatch: [],
     startX: 0, startY: 0,
-    isAnimating: false
+    animating: false
 };
 
 const card = document.getElementById('question-card');
 
 function init() {
-    // Перемешиваем и берем 12 вопросов
-    state.currentQ = allQuestions.sort(() => Math.random() - 0.5).slice(0, 12);
-    loadQuestion();
+    // Выбираем 12 случайных вопросов
+    state.currentBatch = questionsMassive.sort(() => Math.random() - 0.5).slice(0, 12);
+    loadLevel();
 
-    // Swipe Logic
+    // Swipe для мобильных
     document.addEventListener('touchstart', e => {
-        state.startX = e.touches[0].clientX;
-        state.startY = e.touches[0].clientY;
+        state.startX = e.touches.clientX;
+        state.startY = e.touches.clientY;
     });
 
     document.addEventListener('touchend', e => {
-        if (state.isAnimating) return;
-        const dx = e.changedTouches[0].clientX - state.startX;
-        const dy = e.changedTouches[0].clientY - state.startY;
+        if (state.animating) return;
+        const dx = e.changedTouches.clientX - state.startX;
+        const dy = e.changedTouches.clientY - state.startY;
         
-        if (Math.abs(dx) > 50 || Math.abs(dy) > 50) {
-            let zoneIndex;
-            if (Math.abs(dx) > Math.abs(dy)) zoneIndex = (dx > 0) ? 1 : 0; // упрощенно для 4 зон
-            else zoneIndex = (dy > 0) ? 2 : 0; // это требует более сложной логики квадрантов:
-            
-            // Точная логика квадрантов для свайпа:
-            const endX = e.changedTouches[0].clientX;
-            const endY = e.changedTouches[0].clientY;
-            processChoice(getZoneAtPos(endX, endY));
+        if (Math.abs(dx) > 60 || Math.abs(dy) > 60) {
+            const x = e.changedTouches.clientX;
+            const y = e.changedTouches.clientY;
+            processChoice(getZoneIndex(x, y));
         }
     });
 }
 
-function getZoneAtPos(x, y) {
-    const w = window.innerWidth / 2;
-    const h = window.innerHeight / 2;
-    if (x < w && y < h) return 0;
-    if (x >= w && y < h) return 1;
-    if (x < w && y >= h) return 2;
-    return 3;
+function getZoneIndex(x, y) {
+    const halfW = window.innerWidth / 2;
+    const halfH = window.innerHeight / 2;
+    if (x < halfW) return (y < halfH) ? 0 : 2;
+    return (y < halfH) ? 1 : 3;
 }
 
-function handleZoneClick(index) {
-    if (!state.isAnimating) processChoice(index);
-}
-
-function loadQuestion() {
-    const q = state.currentQ[state.lvl];
-    document.getElementById('round-num').innerText = state.lvl + 1;
-    card.innerText = q.q;
-    card.style.left = '50%'; card.style.top = '50%';
+function loadLevel() {
+    const qData = state.currentBatch[state.lvl];
+    document.getElementById('progress').innerText = `Вопрос: ${state.lvl + 1}/12`;
+    card.innerText = qData.q;
     card.style.opacity = '1';
+    card.style.transform = 'translate(-50%, -50%) scale(1)';
 
-    // Заполняем зоны ответами (перемешанными)
-    const shuffledAns = [...q.a].sort(() => Math.random() - 0.5);
+    // Рандомизируем ответы по зонам
+    const answers = [...qData.a].sort(() => Math.random() - 0.5);
     for(let i=0; i<4; i++) {
-        document.getElementById(`z${i}`).querySelector('.zone-label').innerText = shuffledAns[i] || "";
+        document.getElementById(`z${i}`).querySelector('.zone-label').innerText = answers[i] || "";
     }
 }
 
-function processChoice(index) {
-    state.isAnimating = true;
-    const chosenText = document.getElementById(`z${index}`).querySelector('.zone-label').innerText;
-    const correctText = state.currentQ[state.lvl].c;
+function processChoice(idx) {
+    if (state.animating) return;
+    state.animating = true;
 
-    if (chosenText === correctText) {
-        // Анимация полета в зону
-        const zone = document.getElementById(`z${index}`).getBoundingClientRect();
-        card.style.transition = "all 0.4s ease-in";
+    const chosen = document.getElementById(`z${idx}`).querySelector('.zone-label').innerText;
+    const correct = state.currentBatch[state.lvl].c;
+
+    if (chosen === correct) {
+        // Улет в зону
+        const zone = document.getElementById(`z${idx}`).getBoundingClientRect();
+        card.style.transition = "all 0.4s cubic-bezier(0.5, 0, 0.5, 1)";
         card.style.left = (zone.left + zone.width/2) + 'px';
         card.style.top = (zone.top + zone.height/2) + 'px';
-        card.style.opacity = '0';
-        
-        setTimeout(() => {
-            state.lvl++;
-            state.isAnimating = false;
-            card.style.transition = "none";
-            if (state.lvl < 12) loadQuestion();
-            else finish();
-        }, 400);
+        card.style.transform = "translate(-50%, -50%) scale(0.2)";
+        card.style.opacity = "0";
+
+        setTimeout(next, 450);
     } else {
-        // Ошибка
-        state.wrongAnswers.push({ q: state.currentQ[state.lvl].q, c: correctText, user: chosenText });
-        state.lives--;
-        updateHearts();
-        
+        // Анимация ошибки (тряска)
+        state.wrongAnswers.push({ q: state.currentBatch[state.lvl].q, c: correct, user: chosen });
         card.classList.add('shake');
         setTimeout(() => {
             card.classList.remove('shake');
-            state.isAnimating = false;
-            if (state.lives <= 0) finish();
-        }, 400);
+            next();
+        }, 500);
     }
 }
 
-function updateHearts() {
-    document.getElementById('hearts').innerText = "❤️".repeat(Math.max(0, state.lives));
+function next() {
+    card.style.transition = "none";
+    card.style.left = "50%";
+    card.style.top = "50%";
+    state.lvl++;
+    state.animating = false;
+    
+    if (state.lvl < 12) loadLevel();
+    else showResults();
 }
 
-function finish() {
+function showResults() {
     document.getElementById('result-screen').style.display = 'flex';
-    document.getElementById('final-stats').innerText = `Пройдено уровней: ${state.lvl} из 12`;
+    const score = 12 - state.wrongAnswers.length;
+    document.getElementById('final-score').innerText = `Ваш результат: ${score} из 12`;
     
     const list = document.getElementById('errors-list');
-    list.innerHTML = state.wrongAnswers.map(err => `
-        <div class="error-item">
-            <div class="error-q">${err.q}</div>
-            <div style="font-size:14px">Правильно: <b style="color:#0f0">${err.c}</b></div>
-            <div style="font-size:14px">Вы выбрали: <b style="color:#f44">${err.user}</b></div>
-        </div>
-    `).join('');
+    if (state.wrongAnswers.length === 0) {
+        document.getElementById('error-title').innerText = "Идеально! Ошибок нет.";
+    } else {
+        list.innerHTML = state.wrongAnswers.map(err => `
+            <div class="error-item">
+                <div class="error-q">${err.q}</div>
+                <div style="font-size:14px; color:#aaa">Вы ответили: <span style="color:#f44">${err.user}</span></div>
+                <div style="font-size:14px; color:#aaa">Правильно: <span style="color:#0f0">${err.c}</span></div>
+            </div>
+        `).join('');
+    }
 }
 
 init();
