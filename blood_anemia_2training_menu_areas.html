@@ -167,18 +167,27 @@
 <script>
 // Ваш массив вопросов
 const questions = [
-    { q: "ЖДА", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV N"], c: "MCV ▼, RET ▼" },
-    { q: "отравл. Pb", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV N"], c: "MCV ▼, RET ▼" },
-    { q: "B12", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV N"], c: "MCV ▲, RET ▼" },
-    { q: "B9", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV N"], c: "MCV ▲, RET ▼" },
-    { q: "Гемолиз", a: ["MCV ▼/N, RET ▲", "MCV ▲/N, RET ▲", "MCV ▲/N, RET ▼", "MCV ▼"], c: "MCV ▲/N, RET ▲" },
+    { q: "ЖДА", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV ▲, RET ▲"], c: "MCV ▼, RET ▼" },
+    { q: "отравл. Pb", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV ▲, RET ▲"], c: "MCV ▼, RET ▼" },
+    { q: "B12", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV ▲, RET ▲"], c: "MCV ▲, RET ▼" },
+    { q: "B9", a: ["MCV ▼, RET ▼", "MCV ▼, RET ▲", "MCV ▲, RET ▼", "MCV ▲, RET ▲"], c: "MCV ▲, RET ▼" },
+    { q: "Гемолиз", a: ["MCV ▼/N, RET ▲", "MCV ▲/N, RET ▲", "MCV ▲/N, RET ▼", "MCV ▼, RET ▼"], c: "MCV ▲/N, RET ▲" },
+    { q: "Апластическая", a: ["MCV ▼/N, RET ▲", "MCV ▲/N, RET ▲", "MCV ▲/N, RET ▼", "MCV ▼, RET ▼"], c: "MCV ▲/N, RET ▼" },
     { q: "Синдромы В12", a: ["сидеропенич.", "инфекции", "неврологич.", "геморрагич."], c: "неврологич." },
+    { q: "Синдромы В9", a: ["сидеропенич.", "инфекции", "неврологич.", "ЖКТ"], c: "ЖКТ" },
+    { q: "Синдромы апластической", a: ["сидеропенич.", "ЖКТ", "неврологич.", "геморрагич."], c: "геморрагич." },
     { q: "ЖДА", a: ["ферр.▼, ОЖСС▲", "ферр.▲, ОЖСС▲", "ферр.▼, ОЖСС▼", "ферр.▲, ОЖСС▼"], c: "ферр.▼, ОЖСС▲" },
     { q: "АХЗ", a: ["ферр.▼, ОЖСС▲", "ферр.▲, ОЖСС▲", "ферр.▲, ОЖСС▼", "ферр.▼, ОЖСС▼"], c: "ферр.▲, ОЖСС▼" },
     { q: "Причина #1 B12", a: ["ПА", "алиментарная", "мальабсорбция", "диета"], c: "ПА" },
     { q: "ЖДА", a: ["sTfR▼, ОЖСС▲", "sTfR▲, ОЖСС▲", "sTfR▼, ОЖСС▼", "sTfR▲, ОЖСС▼"], c: "sTfR▲, ОЖСС▲" },
+    { q: "АХЗ", a: ["sTfR▼, ОЖСС▲", "sTfR▲, ОЖСС▲", "sTfR▼, ОЖСС▼", "sTfR▲, ОЖСС▼"], c: "sTfR▼, ОЖСС▼" },
+    { q: "АХЗ", a: ["sTfR▼, ферр.▼", "sTfR▲, ферр.▼", "sTfR▼, ферр.▲", "sTfR▲, ферр.▲"], c: "sTfR▼, ферр.▲" },
+    { q: "ЖДА", a: ["sTfR▼, ферр.▼", "sTfR▲, ферр.▼", "sTfR▼, ферр.▲", "sTfR▲, ферр.▲"], c: "sTfR▲, ферр.▼" },
     { q: "СКА", a: ["Hb-патия", "мембранопатия", "ферментопатия", "инфекция"], c: "Hb-патия" },
-    { q: "Гиперсегментация<br>нейтрофилов", a: ["B9", "ЖДА", "Pb", "АХЗ"], c: "B9" }
+    { q: "болезнь Минковского-<br>Шоффара", a: ["Hb-патия", "мембранопатия", "ферментопатия", "инфекция"], c: "мембранопатия" },
+    { q: "Гиперсегментация<br>нейтрофилов", a: ["B9", "ЖДА", "Pb", "АХЗ"], c: "B9" },
+    { q: "Гиперсегментация<br>нейтрофилов", a: ["B12", "ЖДА", "Pb", "ЖДА"], c: "B12" },
+    { q: "Гиперсегментация<br>нейтрофилов", a: ["мегалобластные", "сидеробластные", "апластические", "гемолитические"], c: "мегалобластные" },
 ];
 
 let state = {
@@ -195,7 +204,6 @@ function init() {
     state.currentBatch = [...questions].sort(() => Math.random() - 0.5).slice(0, 12);
     loadLevel();
 
-    // Mouse Click & Swipe
     document.addEventListener('touchstart', e => {
         state.startX = e.touches[0].clientX;
         state.startY = e.touches[0].clientY;
@@ -221,9 +229,12 @@ function getZoneIndex(x, y) {
 function loadLevel() {
     const qData = state.currentBatch[state.lvl];
     document.getElementById('progress').innerText = `Вопрос: ${state.lvl + 1}/12`;
-    card.innerHTML = qData.q; // Поддержка <br>
+    
+    card.style.transition = "none";
+    card.innerHTML = qData.q;
     card.style.opacity = '1';
-    card.style.left = '50%'; card.style.top = '50%';
+    card.style.left = '50%'; 
+    card.style.top = '50%';
     card.style.transform = 'translate(-50%, -50%) scale(1)';
 
     const zones = document.querySelectorAll('.zone-label');
@@ -251,12 +262,10 @@ function processChoice(idx) {
         setTimeout(() => {
             state.lvl++;
             state.animating = false;
-            card.style.transition = "none";
             if (state.lvl < 12) loadLevel();
             else showResults();
         }, 450);
     } else {
-        // Ошибка: Тряска, но вопрос остается для повторной попытки
         state.wrongLog.push({ q: state.currentBatch[state.lvl].q, c: correct, user: chosen });
         card.classList.add('shake');
         setTimeout(() => card.classList.remove('shake'), 400);
@@ -265,19 +274,19 @@ function processChoice(idx) {
 
 function showResults() {
     document.getElementById('result-screen').style.display = 'flex';
-    document.getElementById('final-stats').innerText = `Всего попыток с ошибками: ${state.wrongLog.length}`;
+    document.getElementById('final-stats').innerText = `Всего ошибок: ${state.wrongLog.length}`;
     const list = document.getElementById('errors-list');
     
-    // Убираем дубликаты из истории ошибок для чистого отчета
     const uniqueErrors = Array.from(new Set(state.wrongLog.map(a => a.q)))
         .map(q => state.wrongLog.find(a => a.q === q));
 
-    list.innerHTML = uniqueErrors.map(err => `
-        <div class="error-item">
-            <div class="error-q">${err.q}</div>
-            <div style="font-size:15px; color:#aaa">Нужно было: <span style="color:var(--correct)">${err.c}</span></div>
-        </div>
-    `).join('');
+    list.innerHTML = uniqueErrors.length > 0 ? 
+        uniqueErrors.map(err => `
+            <div class="error-item">
+                <div class="error-q">${err.q}</div>
+                <div style="font-size:15px; color:#aaa">Нужно было: <span style="color:var(--correct)">${err.c}</span></div>
+            </div>
+        `).join('') : "<p>Отличная работа!</p>";
 }
 
 init();
