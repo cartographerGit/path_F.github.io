@@ -1,1 +1,377 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards with Header</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; padding: 20px; color: #333; }
+        
+        .header-section {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 30px auto;
+        }
+        .header-section h1 { color: #2c3e50; margin-bottom: 10px; }
+        .header-section p { color: #7f8c8d; line-height: 1.6; }
 
+        .grid {
+            display: grid;
+            gap: 25px;
+            grid-template-columns: 1fr;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        @media (min-width: 768px) {
+            .grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .card-container { perspective: 1000px; }
+        
+        .card {
+            width: 100%;
+            height: 220px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .card.flipped { transform: rotateY(180deg); }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: white;
+            padding: 20px;
+            box-sizing: border-box;
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-align: center;
+        }
+        .card-back { transform: rotateY(180deg); background: #ebf5ff; color: #2980b9; }
+        
+        img { max-width: 100%; max-height: 100%; border-radius: 6px; object-fit: contain; }
+
+        .pick-btn {
+            display: block;
+            width: 100%;
+            margin-top: 12px;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .pick-btn:hover { background: #2980b9; }
+
+        #list-section {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 12px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-section">
+    <h1>Карточки</h1>
+    <p>Нажмите на карточку, чтобы узнать ответ. Если вопрос вызвал затруднение, нажмите на кнопку "В список вопросов". Этот вопрос будет помещен в список в конце страницы. Можно заскринить этот список</p>
+</div>
+
+<div class="grid" id="cardGrid">
+    
+    <!-- Карточка 1 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">Пути (механизмы) апоптоза</div>
+            <div class="card-face card-back">1. Внешний<br>2. Внутренний<br>3.Перфорин-гранзимовый</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Пути (механизмы) апоптоза')">В список вопросов</button>
+    </div>
+
+    <!-- Карточка 2 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">Что с ядром при некрозе?</div>
+            <div class="card-face card-back">
+                <img src="assets/image/necr_karyo.png" alt="рисунок - кариопикноз, кариорексис, кариолизис">
+            </div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Что с ядром при некрозе?')">В список вопросов</button>
+    </div>
+
+
+  
+       <!-- Карточка 3 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front"><img src="assets/image/necr_karyopic.png" alt="на рисунке клетки с кариопикнозом"></div>
+            <div class="card-face card-back">
+                Кариопикноз
+            </div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Кариопикноз')">В список вопросов</button>
+    </div>
+
+
+  
+       <!-- Карточка 4 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">Кратко внешний путь апоптоза</div>
+            <div class="card-face card-back">FasL + FasR либо ФНО + ФНО-рец. → каспаза-8 → каспаза-3 → ДНК-азы (CAD) и пр.</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Кратко внешний путь апоптоза')">В список вопросов</button>
+    </div>
+
+       <!-- Карточка 5 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">Кратко внутренний путь апоптоза</div>
+            <div class="card-face card-back">BAX/BAK в мембране МХ → каспаза-9 → каспаза-3 → ДНК-азы (CAD) и пр.</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Кратко внутренний путь апоптоза')">В список вопросов</button>
+    </div>
+
+       <!-- Карточка 6 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">Главная молекула "съешь меня"</div>
+            <div class="card-face card-back">фосфатидилсерин (ФС)</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Главная молекула "съешь меня"'>В список вопросов</button>
+    </div>
+
+       <!-- Карточка 7 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">Кто тормозит BAX/BAK</div>
+            <div class="card-face card-back">BCL-2</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Кто тормозит BAX/BAK')">В список вопросов</button>
+    </div>
+
+    
+       <!-- Карточка 8 -->
+   <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">Как называется удаление апоптозных телец</div>
+            <div class="card-face card-back">Эффероцитоз</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Как называется удаление апоптозных телец')">В список вопросов</button>
+    </div>
+
+           <!-- Карточка 9 -->
+  <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">Как называется апоптоз из-за утраты внешних контактов</div>
+            <div class="card-face card-back">Аноикис</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Как называется апоптоз из-за утраты внешних контактов')">В список вопросов</button>
+    </div>
+
+           <!-- Карточка 10 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">Два эшелона каспаз</div>
+            <div class="card-face card-back">Инициаторные и эффекторные</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Два эшелона каспаз')">В список вопросов</button>
+    </div>
+
+           <!-- Карточка 11 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">Главная эффекторная каспаза</div>
+            <div class="card-face card-back">Каспаза-3</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Главная эффекторная каспаза')">В список вопросов</button>
+    </div>
+
+               <!-- Карточка 12 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">Зачем апоптоз в тимусе</div>
+            <div class="card-face card-back">Для селекции Т-клеток</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Зачем апоптоз в тимусе')">В список вопросов</button>
+    </div>
+
+               <!-- Карточка 13 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">В опухолях апоптоз усилен или ослаблен?</div>
+            <div class="card-face card-back">Ослаблен</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('В опухолях апоптоз усилен или ослаблен?')">В список вопросов</button>
+    </div>
+
+               <!-- Карточка 14 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">Как Т-киллеры и NK убивают своих мишеней?</div>
+            <div class="card-face card-back">1. внешний путь апоптоза, 2. перфорин-гранзимовый путь</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Как Т-киллеры и NK убивают своих мишеней?')">В список вопросов</button>
+    </div>
+
+               <!-- Карточка 15 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">Как реагирует ткань на апоптоз? На некроз?</div>
+            <div class="card-face card-back">Апоптоз - нет воспаления. Некроз - есть воспаление</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Как реагирует ткань на апоптоз? На некроз?')">В список вопросов</button>
+    </div>
+
+
+                   <!-- Карточка 16 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">Кратко перфорин-гранзимовый путь</div>
+            <div class="card-face card-back">Перфорин как дырочка в мембране → через нее проникает гранзим В → активирует разные каспазы </div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Кратко перфорин-гранзимовый путь')">В список вопросов</button>
+    </div>
+
+                   <!-- Карточка 17 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">Страж генома. <br> Как он влияет на апоптоз?</div>
+            <div class="card-face card-back">Ген TP53 и кодируемый им белок р53. <br> Запускает апоптоз, если в геноме есть ошибки и их не удалось исправить (репарация)</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Страж генома. <br> Как он влияет на апоптоз?')">В список вопросов</button>
+    </div>
+
+                   <!-- Карточка 18 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">В опухолях много или мало p53?</div>
+            <div class="card-face card-back">Мало</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('В опухолях много или мало p53?')">В список вопросов</button>
+    </div>
+
+                   <!-- Карточка 19 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">Какие вещества из разрушенных клеток запускают воспаление</div>
+            <div class="card-face card-back">DAMP</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Какие вещества из разрушенных клеток запускают воспаление')">В список вопросов</button>
+    </div>
+
+
+                   <!-- Карточка 20 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front"><img src="assets/image/perf.png" alt="на рисунке перфоратор, который ассоциируется с перфорином"></div>
+            <div class="card-face card-back">Перфорин</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Перфорин')">В список вопросов</button>
+    </div>
+
+
+                       <!-- Карточка 21 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+           <div class="card-face card-front"><img src="assets/image/necr_karyorrhex.png" alt="на рисунке клетки с кариорексисом"></div>
+            <div class="card-face card-back">Кариорексис</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('Кариорексис')">В список вопросов</button>
+    </div>
+
+
+
+                       <!-- Карточка 22 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+           <div class="card-face card-front"><img src="assets/image/ladder.png" alt="на рисунке клетки с кариорексисом"></div>
+            <div class="card-face card-back">Фрагментация ДНК, видная при электрофорезе (laddering)</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('* Фрагментация ДНК видна при электрофорезе')">В список вопросов</button>
+    </div>
+
+
+  
+                   <!-- Карточка 23 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">* Метод, помечающий фрагменты ДНК, и они лучше видны в микроскоп</div>
+            <div class="card-face card-back">TUNEL</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('* Метод, помечающий фрагменты ДНК, и они лучше видны в микроскоп')">В список вопросов</button>
+    </div>
+
+
+
+  
+                   <!-- Карточка 24 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">* Вещество, присоединяющееся к фосфатидилсерину, для лабораторного обнаружения апоптозных клеток</div>
+            <div class="card-face card-back">Аннексин 5</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('* Вещество, присоединяющееся к фосфатидилсерину, для лабораторного обнаружения апоптозных клеток')">В список вопросов</button>
+    </div>
+
+
+
+  
+                   <!-- Карточка 25 -->
+    <div class="card-container">
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">* Ферменты в норме перемещаюцие ФС внутрь </div>
+            <div class="card-face card-back">Флиппазы</div>
+        </div>
+        <button class="pick-btn" onclick="addToList('* Ферменты в норме перемещаюцие ФС внутрь')">В список вопросов</button>
+    </div>
+  
+    <!-- Добавьте больше карточек сюда... -->
+
+</div>
+
+<div id="list-section">
+    <h3>Затруднительные вопросы. Можно заскринить</h3>
+    <ul id="selected-questions"></ul>
+</div>
+    
+        <a href="index.html" class="back-button">на главную</a><br>
+        
+<script>
+    // 1. ПЕРЕМЕШИВАНИЕ (исправленное)
+    window.addEventListener('DOMContentLoaded', () => {
+        const grid = document.getElementById('cardGrid');
+        const cards = Array.from(grid.children);
+        
+        for (let i = cards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            grid.appendChild(cards[j]); // appendChild автоматически перемещает элемент в конец
+        }
+    });
+
+    // 2. ДОБАВЛЕНИЕ В СПИСОК
+    function addToList(text) {
+        const list = document.getElementById('selected-questions');
+        const li = document.createElement('li');
+        li.textContent = text;
+        list.appendChild(li);
+    }
+</script>
+
+</body>
+</html>
