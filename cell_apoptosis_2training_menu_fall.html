@@ -1,1 +1,188 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Mega Words Compact</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <style>
+        :root { font-size: 16px; }
 
+        * {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        body { 
+            margin: 0; overflow: hidden; font-family: 'Arial Black', sans-serif; 
+            background: #000; color: white; touch-action: none; user-select: none;
+            width: 100vw; height: 100vh;
+        }
+
+        #game-container { 
+            position: relative; width: 100%; height: 100%; 
+            background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); 
+        }
+        
+        /* СЛЕГКА УМЕНЬШЕННЫЕ СЛОВА */
+        .word-item { 
+            position: absolute; 
+            padding: 0.8rem 1.8rem; /* Уменьшили отступы */
+            background: rgba(45, 45, 45, 0.95); 
+            border-radius: 3rem; 
+            cursor: pointer; 
+            font-weight: 900;
+            font-size: 1.4rem; /* Уменьшили шрифт (было 2.2rem) */
+            box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.7); 
+            border: 0.2rem solid #666;
+            transition: transform 0.1s;
+            text-transform: uppercase;
+            text-align: center;
+            white-space: nowrap;
+            max-width: 85vw;
+        }
+
+        .correct { background: #27ae60 !important; border-color: #2ecc71 !important; transform: scale(1.1); }
+        .wrong { background: #c0392b !important; border-color: #e74c3c !important; animation: shake 0.3s; }
+
+        #ui { 
+            position: absolute; top: 0; width: 100%; text-align: center; 
+            padding: 0.8rem; z-index: 10; background: rgba(0,0,0,0.85); 
+            border-bottom: 0.1rem solid #444; 
+        }
+
+        #target-display { font-size: 2.2rem; color: #f1c40f; margin-bottom: 0.2rem; display: block; }
+        #stats { font-size: 1.1rem; color: #fff; }
+
+        @keyframes shake {
+            0% { transform: translateX(-0.5rem); }
+            50% { transform: translateX(0.5rem); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="ui">
+    <span id="target-display">...</span>
+    <div id="stats">
+        РАУНД: <span id="round-num">1</span> | 
+        НУЖНО: <b id="needed">0</b> | 
+        <span id="lives-display"></span>
+    </div>
+</div>
+
+<div id="game-container"></div>
+
+<script>
+    const rounds = [
+        { target: "Внешний путь", right: ["К-8", "Fas", "ФНО","Т-киллеры", "К-8 → К-3"], wrong: ["К-9", "BCL-2", "цитохр.С", "К-3 → К-8", "цитохр.С → BAX"] },
+        { target: "Внутренний путь", right: ["BAX → цитохр.С", "BCL-2", "апоптосома", "К-9 → К-3"], wrong: ["К-3 → К-8", "К-3 → К-9", "цитохр.С → BAX", "ФНО", "NK"] },
+        { target: "▼O2 обратимо", right: ["гликолиз", "лактат", "набухание", "гидропическая<br>дистрофия", "▼синтез белка", "▼Na/K-АТФ-аза"], wrong: ["ФЛ-аза А2", "▼Са-АТФ-азы", "кариолизис"] },
+    ];
+
+    let currentRoundIdx = 0;
+    let collectedCount = 0;
+    let lives = 7;
+    let gameActive = true;
+    const container = document.getElementById('game-container');
+
+    function updateUI() {
+        const round = rounds[currentRoundIdx];
+        document.getElementById('target-display').innerHTML = round.target;
+        document.getElementById('round-num').innerText = currentRoundIdx + 1;
+        document.getElementById('needed').innerText = (round.right.length - collectedCount);
+        document.getElementById('lives-display').innerHTML = '❤️'.repeat(lives);
+    }
+
+    function createFallingWord() {
+        if (!gameActive) return;
+        const round = rounds[currentRoundIdx];
+        const el = document.createElement('div');
+        el.className = 'word-item';
+        
+        const isRight = Math.random() > 0.5;
+        const wordPool = isRight ? round.right : round.wrong;
+        el.innerHTML = wordPool[Math.floor(Math.random() * wordPool.length)];
+        
+        container.appendChild(el);
+
+        const wordWidth = el.offsetWidth;
+        const maxX = window.innerWidth - wordWidth;
+        el.style.left = Math.max(10, Math.random() * maxX) + 'px';
+        el.style.top = '-10rem';
+
+        let topPos = -150;
+        const interval = setInterval(() => {
+            if (!gameActive) return clearInterval(interval);
+            topPos += 2.8; // Чуть быстрее для динамики
+            el.style.top = topPos + 'px';
+
+            if (topPos > window.innerHeight) {
+                if (isRight && !el.clicked) loseLife();
+                cleanup();
+            }
+        }, 20);
+
+        el.onclick = (e) => {
+            if (!gameActive || el.clicked) return;
+            el.clicked = true;
+
+            if (isRight) {
+                el.classList.add('correct');
+                collectedCount++;
+                updateUI();
+                if (collectedCount >= round.right.length) setTimeout(nextRound, 600);
+                setTimeout(cleanup, 200);
+            } else {
+                el.classList.add('wrong');
+                loseLife();
+                setTimeout(cleanup, 400);
+            }
+        };
+
+        function cleanup() {
+            clearInterval(interval);
+            if (el.parentNode) container.removeChild(el);
+        }
+    }
+
+    function loseLife() {
+        lives--;
+        updateUI();
+        if (lives <= 0) {
+            gameActive = false;
+            alert("ТАКОГО НЕ БЫЛОО 😭");
+            location.reload();
+        }
+    }
+
+    function nextRound() {
+        currentRoundIdx++;
+        if (currentRoundIdx < rounds.length) {
+            startRound();
+        } else {
+            gameActive = false;
+            alert("ПОБЕДА!");
+            location.reload();
+        }
+    }
+
+    function startRound() {
+        if (!gameActive) return;
+        collectedCount = 0;
+        updateUI();
+        const spawner = setInterval(() => {
+            if (!gameActive || collectedCount >= rounds[currentRoundIdx].right.length) {
+                clearInterval(spawner);
+                return;
+            }
+            createFallingWord();
+        }, 1200);
+    }
+
+    startRound();
+</script>
+</body>
+</html>
